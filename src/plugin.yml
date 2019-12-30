@@ -1,0 +1,34 @@
+name: pluginSurvie
+api-version: 1.14
+author: Imperayser
+main: fr.sky.main.main
+version: 0.5
+commands:
+  god:
+    description: fuck it
+  spawnmob:
+    description: lmao
+  claim:
+    description: Pour claim
+  pvp:
+    description: Seulement accessible aux admins, permet d'activer ou désactiver le pvp
+  sethome:
+    description: Pour set un home
+  delhome:
+    description: Pour supprimer un home
+  home:
+    description: Pour se téléporter à un home
+  spawn:
+    description: Pour se téléporter au spawn
+  invsee:
+    description: Seulement accessible aux admins, permet de vérifier les inventaires
+  tpa:
+    description: Pour faire une demande de téléportation à un joueur se situant dans le même monde
+  rc:
+    description: Pour reset les cooldowns
+  lt:
+    description: Pour avoir les logs d'un block
+  sban:
+    description: Spécial au staff, permet de ban
+  skick:
+    description: Spécial au staff, permet de kick
