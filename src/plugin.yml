@@ -4,10 +4,8 @@ author: Imperayser
 main: fr.sky.main.main
 version: 0.5
 commands:
-  god:
-    description: fuck it
-  spawnmob:
-    description: lmao
+  stuff:
+    description: t
   claim:
     description: Pour claim
   pvp:

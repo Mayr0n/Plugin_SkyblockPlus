@@ -4,15 +4,15 @@ import fr.sky.claims.ClaimsManager;
 import fr.sky.homes.homeManager;
 import fr.sky.logsCenter.logsMain;
 import fr.sky.tpPack.tpEtCooldowns;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.Sound;
+import org.bukkit.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -35,7 +35,7 @@ public class cmdManager implements CommandExecutor {
     public List<String> getCommands(){
         return Arrays.asList(
                 "pvp", "sethome", "delhome", "home", "spawn", "invsee", "tpa",
-                "rc", "lt", "skick", "sban", "claim", "spawnmob", "god");
+                "rc", "lt", "skick", "sban", "claim", "stuff");
     }
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String arg, String[] args) {
@@ -57,7 +57,7 @@ public class cmdManager implements CommandExecutor {
                 hm.tpHome(p, args);
             }
             else if(command.equals(cmds.get(4))){
-                p.teleport(new Location(Bukkit.getWorld("world"), 7, 21, 11));
+                p.teleport(new Location(Bukkit.getWorld("world"), 0, 65, 0));
             }
             else if(command.equals(cmds.get(5)) && p.getName().equals("Imperayser")){
                 commands.invsee(p, args);
@@ -94,19 +94,49 @@ public class cmdManager implements CommandExecutor {
                     default: p.sendMessage(ChatColor.RED + "Erreur syntaxe ! Syntaxe : " + ChatColor.DARK_GREEN + "/claim <add:remove:list>");
                 }
             } else if(command.equalsIgnoreCase(cmds.get(12)) && p.isOp()){
-                for(int i = 0; i < Integer.parseInt(args[0]) ; i++){
-                    p.getLocation().getWorld().spawnEntity(p.getLocation(), EntityType.ZOMBIE);
-                }
-            } else if(command.equalsIgnoreCase(cmds.get(13)) && p.isOp()) {
-                p.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 99999, 50));
-                p.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 99999, 5));
-                p.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 99999, 50));
-                p.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, 99999, 50));
-
-                p.playSound(p.getLocation(), Sound.ENTITY_WITHER_SPAWN, 10, 10);
-                Bukkit.broadcastMessage(ChatColor.DARK_GREEN +  p.getName() + " became a" + ChatColor.BLACK + "god");
+                giveStuff(p);
             }
         }
         return false;
+    }
+
+    public static void giveStuff(Player p){
+        p.getInventory().clear();
+
+        ItemStack[] armor = {
+                getUnbreakable(new ItemStack(Material.IRON_BOOTS)), getUnbreakable(new ItemStack(Material.IRON_LEGGINGS)),
+                getUnbreakable(new ItemStack(Material.DIAMOND_CHESTPLATE)), getUnbreakable(new ItemStack(Material.IRON_HELMET))
+        };
+
+        ItemStack bow = getUnbreakable(new ItemStack(Material.BOW));
+        bow.addEnchantment(Enchantment.ARROW_INFINITE, 1);
+
+        ItemStack[] bonusStuff = {
+                bow, getUnbreakable(new ItemStack(Material.DIAMOND_AXE)),
+                new ItemStack(Material.LAVA_BUCKET),
+                new ItemStack(Material.WATER_BUCKET), new ItemStack(Material.GOLDEN_APPLE, 5),
+                new ItemStack(Material.COOKED_BEEF, 64), new ItemStack(Material.ARROW)
+        };
+
+        p.getInventory().setArmorContents(armor);
+        p.getInventory().setItemInMainHand(getUnbreakable(new ItemStack(Material.DIAMOND_SWORD)));
+        p.getInventory().setItemInOffHand(getUnbreakable(new ItemStack(Material.SHIELD)));
+        for (ItemStack item : bonusStuff) {
+            p.getInventory().addItem(item);
+        }
+        for (int i = 0; i <= 6; i++) {
+            p.getInventory().addItem(new ItemStack(Material.OAK_LEAVES, 64));
+        }
+        p.getInventory().addItem(new ItemStack(Material.TNT, 32));
+        p.getInventory().addItem(new ItemStack(Material.FLINT_AND_STEEL));
+        p.getInventory().addItem(new ItemStack(Material.ENDER_PEARL, 4));
+        p.setGameMode(GameMode.SURVIVAL);
+    }
+
+    public static ItemStack getUnbreakable(ItemStack item){
+        ItemMeta m = item.getItemMeta();
+        m.setUnbreakable(true);
+        item.setItemMeta(m);
+        return item;
     }
 }

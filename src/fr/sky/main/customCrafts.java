@@ -159,10 +159,35 @@ public class customCrafts {
         myce.setIngredient('b', Material.BROWN_MUSHROOM);
         myce.setIngredient('c', Material.GRASS_BLOCK);
 
+        ShapedRecipe nametag = new ShapedRecipe(getNamespacedkey(plugin, "nametag"), new ItemStack(Material.NAME_TAG));
+
+        nametag.shape("zaa", "bca", "dbz");
+        nametag.setIngredient('a', Material.STRING);
+        nametag.setIngredient('b', Material.PAPER);
+        nametag.setIngredient('c', Material.SLIME_BALL);
+        nametag.setIngredient('d', Material.BLACK_DYE);
+
+        ShapedRecipe sponges = new ShapedRecipe(getNamespacedkey(plugin, "sponges"), new ItemStack(Material.SPONGE));
+
+        sponges.shape("aaa", "aba", "aaa");
+        sponges.setIngredient('a', Material.SHEARS);
+        sponges.setIngredient('b', Material.YELLOW_WOOL);
+
+        ShapedRecipe wart = new ShapedRecipe(getNamespacedkey(plugin, "wart"), new ItemStack(Material.NETHER_WART));
+
+        wart.shape("aaa", "aba", "aaa");
+        wart.setIngredient('a', Material.RED_MUSHROOM);
+        wart.setIngredient('b', Material.WHEAT_SEEDS);
+
+        ShapedRecipe coalblock = new ShapedRecipe(getNamespacedkey(plugin, "coalblock"), new ItemStack(Material.COAL_BLOCK));
+
+        coalblock.shape("aaa", "aaa", "aaa");
+        coalblock.setIngredient('a', Material.CHARCOAL);
+
         //getCompressedRecipe(Material.GRAVEL), getCompressedRecipe(Material.SAND), getDecompressedRecipe(Material.GRAVEL),
 
         crafts = Arrays.asList(
-            coms, res, grav, sand, red, grass, saver, headcut, cacao, golder1, golder2, gmush, rmush, nack, myce,
+            coms, res, grav, sand, red, grass, saver, headcut, cacao, golder1, golder2, gmush, rmush, nack, myce, nametag, sponges, wart, coalblock,
             spawnVEgg(),
                 harderSpawnRecipe(Material.DIRT, Material.LEATHER, Material.GOLD_INGOT, "cowegg", Material.COW_SPAWN_EGG),
                 basicSpawnRecipe(Material.WHITE_WOOL, "sheepegg", Material.SHEEP_SPAWN_EGG),

@@ -14,6 +14,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.*;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
@@ -70,6 +71,10 @@ public class listeners implements Listener {
                     loc.getWorld().dropItem(loc, new ItemStack(Material.GRAVEL));
                 }
                 e.setDropItems(false);
+            } else if(b.getType().equals(Material.WHEAT)){
+                if(new Random().nextInt(20) == 4){
+                    loc.getWorld().dropItem(loc, new ItemStack(Material.STRING));
+                }
             }
         }
     }
@@ -85,7 +90,6 @@ public class listeners implements Listener {
 
     @EventHandler
     public void onDeath(PlayerDeathEvent e) {
-        System.out.println("mort : " + e.getDeathMessage());
         Player p = e.getEntity();
         Location loc = p.getLocation();
         p.sendMessage(ChatColor.RED + "Tu es mort en x = " + (int) loc.getX() + ", y = " + (int) loc.getY() + ", z = " + (int) loc.getZ() + "\n Tu as 5 minutes pour récupérer ton stuff !");
@@ -93,7 +97,7 @@ public class listeners implements Listener {
             e.setDeathMessage(ChatColor.DARK_GREEN + "Aw maaaan ! A Creeper blew up " + p.getName());
         } else if (e.getDeathMessage().contains("shot by Skeleton") && !p.getName().equals("Attiyas")) {
             e.setDeathMessage(ChatColor.DARK_GREEN + "Is it Attiyas ? Oh no, it's " + p.getName() + " who died because of a skeleton, f in the chat everyone");
-        } else if (e.getDeathMessage().contains("fell out of the world")) {
+        } else if (e.getDeathMessage().contains("fell out of the world") || e.getDeathMessage().contains("didn't want to live")) {
             if (p.getInventory().getItemInOffHand().isSimilar(new customItems().getSaver())) {
                 e.setDeathMessage(ChatColor.GREEN + p.getName() + " a été sauvé par son saver !");
                 e.setKeepInventory(true);
@@ -291,6 +295,20 @@ public class listeners implements Listener {
                     loc.getWorld().dropItem(loc, new ItemStack(Material.LAVA_BUCKET));
                 }
             } catch (NullPointerException ignored) {
+            }
+        }
+    }
+
+    @EventHandler
+    public void onPlace(BlockPlaceEvent e){
+        Block b = e.getBlock();
+        if(b.getType().equals(Material.FIRE)){
+            Location loc1 = b.getLocation().add(0,-1,0);
+            Location loc2 = b.getLocation().add(0,-2,0);
+            if(loc1.getBlock().getType().equals(Material.NETHERRACK) && loc2.getBlock().getType().equals(Material.SAND) && loc1.getWorld().getName().equals("nether")){
+                loc1.getBlock().setType(Material.SOUL_SAND);
+                loc2.getBlock().setType(Material.AIR);
+                b.getLocation().getWorld().spawnParticle(Particle.FLAME, b.getLocation(), 100);
             }
         }
     }
