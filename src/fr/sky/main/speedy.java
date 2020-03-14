@@ -11,6 +11,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.meta.FireworkMeta;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 public class speedy {
@@ -78,7 +79,7 @@ public class speedy {
     public static List<String> getFileContent(File file){
         List<String> lines = new ArrayList<>();
         try {
-            BufferedReader reader = new BufferedReader(new FileReader(file));
+            BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8));
             String line = reader.readLine();
             while(line != null){
                 lines.add(line);
@@ -93,16 +94,16 @@ public class speedy {
     public static void writeInFile(File file, String txt, boolean erase){
         testFileExist(file);
         try {
-            FileWriter fw;
+            OutputStreamWriter osw;
             if (erase) {
-                fw = new FileWriter(file, false);
+                osw = new OutputStreamWriter(new FileOutputStream(file, false), StandardCharsets.UTF_8);
             } else {
-                fw = new FileWriter(file, true);
+                osw = new OutputStreamWriter(new FileOutputStream(file, true), StandardCharsets.UTF_8);
             }
-            BufferedWriter bw = new BufferedWriter(fw);
+            BufferedWriter bw = new BufferedWriter(osw);
             bw.write(txt);
             bw.close();
-            fw.close();
+            osw.close();
         } catch(IOException e){
             e.printStackTrace();
         }

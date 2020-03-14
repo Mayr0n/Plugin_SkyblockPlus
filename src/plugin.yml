@@ -30,3 +30,5 @@ commands:
     description: Spécial au staff, permet de ban
   skick:
     description: Spécial au staff, permet de kick
+  sendisc:
+    description: Pour envoyer un message sur discord !

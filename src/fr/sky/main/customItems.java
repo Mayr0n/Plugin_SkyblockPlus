@@ -46,4 +46,39 @@ public class customItems {
         return g;
     }
 
+    public ItemStack getStringer1(){
+        ItemStack g = new ItemStack(Material.IRON_HOE);
+        ItemMeta gm = g.getItemMeta();
+        gm.setDisplayName("Cheap Stringer");
+        gm.addEnchant(Enchantment.DAMAGE_ARTHROPODS, 5, true);
+        g.setItemMeta(gm);
+        return g;
+    }
+
+    public ItemStack getStringer2(){
+        ItemStack g = new ItemStack(Material.GOLDEN_HOE);
+        ItemMeta gm = g.getItemMeta();
+        gm.setDisplayName("Better Stringer");
+        gm.addEnchant(Enchantment.DAMAGE_ARTHROPODS, 5, true);
+        g.setItemMeta(gm);
+        return g;
+    }
+
+    public ItemStack getIroner1(){
+        ItemStack g = new ItemStack(Material.IRON_PICKAXE);
+        ItemMeta gm = g.getItemMeta();
+        gm.setDisplayName("Cheap Ironer");
+        gm.addEnchant(Enchantment.DURABILITY, 5, true);
+        g.setItemMeta(gm);
+        return g;
+    }
+
+    public ItemStack getIroner2(){
+        ItemStack g = new ItemStack(Material.GOLDEN_PICKAXE);
+        ItemMeta gm = g.getItemMeta();
+        gm.setDisplayName("Better Ironer");
+        gm.addEnchant(Enchantment.DURABILITY, 10, true);
+        g.setItemMeta(gm);
+        return g;
+    }
 }

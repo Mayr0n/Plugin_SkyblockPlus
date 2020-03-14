@@ -3,6 +3,7 @@ package fr.sky.commands;
 import fr.sky.claims.ClaimsManager;
 import fr.sky.homes.homeManager;
 import fr.sky.logsCenter.logsMain;
+import fr.sky.main.BotlinkManager;
 import fr.sky.tpPack.tpEtCooldowns;
 import org.bukkit.*;
 import org.bukkit.command.Command;
@@ -35,7 +36,7 @@ public class cmdManager implements CommandExecutor {
     public List<String> getCommands(){
         return Arrays.asList(
                 "pvp", "sethome", "delhome", "home", "spawn", "invsee", "tpa",
-                "rc", "lt", "skick", "sban", "claim", "stuff");
+                "rc", "lt", "skick", "sban", "claim", "stuff", "sendisc");
     }
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String arg, String[] args) {
@@ -95,6 +96,12 @@ public class cmdManager implements CommandExecutor {
                 }
             } else if(command.equalsIgnoreCase(cmds.get(12)) && p.isOp()){
                 giveStuff(p);
+            } else if(command.equalsIgnoreCase(cmds.get(13))){
+                StringBuilder sb = new StringBuilder();
+                for(String s : args){
+                    sb.append(s).append(" ");
+                }
+                new BotlinkManager().sendMess(sb.toString());
             }
         }
         return false;
