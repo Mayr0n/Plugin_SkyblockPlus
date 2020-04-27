@@ -34,3 +34,13 @@ commands:
     description: Pour envoyer un message sur discord !
   city:
     description: Toutes les commandes vis-à-vis du module Towny !
+  scity:
+    description: Toutes les commandes vis-à-vis du module Towny pour les ops !
+  fsethome:
+    description: ok
+  fdelhome:
+    description: ok
+  fhome:
+    description: ok
+  gethomes:
+    description: ok

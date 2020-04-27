@@ -61,11 +61,7 @@ public class commands {
         }
     }
     public boolean resetCooldowns(Player p, tpEtCooldowns tpc){
-        ArrayList<Player> players = new ArrayList<>();
-        Iterator it = p.getServer().getOnlinePlayers().iterator();
-        while(it.hasNext()){
-            players.add((Player) it.next());
-        }
+        ArrayList<Player> players = new ArrayList<>(p.getServer().getOnlinePlayers());
         tpc.resetAll(players);
         p.sendMessage(ChatColor.RED + "Les cooldowns ont été resets.");
         return true;

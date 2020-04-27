@@ -1,66 +1,63 @@
 package xyz.nyroma.main;
 
-import com.google.common.collect.HashMultimap;
-import org.bukkit.ChatColor;
-import xyz.nyroma.towny.*;
-import xyz.nyroma.commands.cmdManager;
-import xyz.nyroma.craftsCenter.CraftsManager;
-import xyz.nyroma.logsCenter.logsListener;
-import xyz.nyroma.tpPack.tpEtCooldowns;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+import xyz.nyroma.commands.CommandManager;
+import xyz.nyroma.craftsCenter.CraftsManager;
+import xyz.nyroma.homes.*;
+import xyz.nyroma.logsCenter.logsListener;
+import xyz.nyroma.towny.*;
+import xyz.nyroma.tpPack.tpEtCooldowns;
 
 import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.util.Hashtable;
 
 public class main extends JavaPlugin {
-    private xyz.nyroma.commands.cmdManager cmdManager = new cmdManager(this, new tpEtCooldowns(this));
-    private CityManager cm = new CityManager();
-    private CityCommands cCmdManager;
 
-    public static void main(String[] args){
+    public static void main(String[] args) {
 
     }
 
     @Override
     public void onEnable() {
-        cCmdManager = new CityCommands();
-        //Bukkit.getServer().getPluginManager().registerEvents(new , this);
-        for(String cmd : cmdManager.getCommands()){
-            this.getCommand(cmd).setExecutor(cmdManager);
+
+        for (String cmd : new CommandManager(new tpEtCooldowns(this)).getCommands()) {
+            this.getCommand(cmd).setExecutor(new CommandManager(new tpEtCooldowns(this)));
         }
 
-        for(String cmd : new CityCommands().getCommands()){
-            this.getCommand(cmd).setExecutor(cCmdManager);
+        for (String cmd : new CityCommands().getCommands()) {
+            this.getCommand(cmd).setExecutor(new CityCommands());
+        }
+
+        for(String cmd : new HomeCommands().getCommands()){
+            this.getCommand(cmd).setExecutor(new HomeCommands());
         }
 
         new CraftsManager(this, getServer()).build();
 
         Bukkit.getServer().getPluginManager().registerEvents(new listeners(), this);
-        try {
-            Bukkit.getServer().getPluginManager().registerEvents(new logsListener(), this);
-        } catch(FileNotFoundException ignored){
-
-        }
+        Bukkit.getServer().getPluginManager().registerEvents(new logsListener(this), this);
         Bukkit.getServer().getPluginManager().registerEvents(new CityListeners(), this);
 
-        System.out.println("Chargement des villes...");
-        try {
-            cm.getCity("Etat");
-        } catch (NotExistException e) {
-            ClaimsManager.citiesClaims.put("l'Etat", HashMultimap.create());
-        }
-        cm.deserializeCities();
-        System.out.println("Villes chargées !");
+        CitiesCache.setup(this);
+        HomesCache.setup(this);
+        logsListener.setup();
+
+        new TaskManager(this, Bukkit.getServer()).build();
+
         System.out.println("Plugin survie activé !");
+
+        for (Player p : Bukkit.getServer().getOnlinePlayers()) {
+            p.sendMessage(ChatColor.DARK_GREEN + "Le serveur a été reload.");
+        }
     }
 
     @Override
     public void onDisable() {
-        System.out.println("Enregistrement des villes...");
-        cm.serializeCities();
-        System.out.println("Villes enregistrées !");
+        CitiesCache.serializeAll();
+        HomesCache.serializeAll();
+        logsListener.serializeAll();
         System.out.println("Plugin survie désactivé !");
     }
 }

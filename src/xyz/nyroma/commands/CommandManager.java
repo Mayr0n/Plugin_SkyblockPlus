@@ -1,6 +1,6 @@
 package xyz.nyroma.commands;
 
-import xyz.nyroma.homes.homeManager;
+import xyz.nyroma.homes.HomeManager;
 import xyz.nyroma.logsCenter.logsMain;
 import xyz.nyroma.main.BotlinkManager;
 import xyz.nyroma.tpPack.tpEtCooldowns;
@@ -12,26 +12,23 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.Arrays;
 import java.util.List;
 
-public class cmdManager implements CommandExecutor {
+public class CommandManager implements CommandExecutor {
     private tpEtCooldowns tpc;
-    private homeManager hm;
-    private JavaPlugin plugin;
+    private HomeManager hm;
     private commands commands = new commands();
 
-    public cmdManager(JavaPlugin plugin, tpEtCooldowns tpc){
-        this.plugin = plugin;
+    public CommandManager(tpEtCooldowns tpc){
         this.tpc = tpc;
-        hm = new homeManager(plugin);
+        hm = new HomeManager();
     }
 
     public List<String> getCommands(){
         return Arrays.asList(
-                "pvp", "sethome", "delhome", "home", "spawn", "invsee", "tpa",
+                "pvp", "spawn", "invsee", "tpa",
                 "rc", "lt", "skick", "sban", "stuff", "sendisc");
     }
     @Override
@@ -45,32 +42,27 @@ public class cmdManager implements CommandExecutor {
                 commands.switchPvp(p, args);
             }
             else if(command.equals(cmds.get(1))){
-                hm.sethome(p, args);
+                Location loc = new Location(Bukkit.getWorld("world"), 0, 65, 0);
+                if(!loc.getChunk().isLoaded()){
+                    loc.getChunk().load();
+                }
+                p.teleport(loc);
             }
-            else if(command.equals(cmds.get(2))){
-                hm.delhome(p, args);
-            }
-            else if(command.equals(cmds.get(3))){
-                hm.tpHome(p, args);
-            }
-            else if(command.equals(cmds.get(4))){
-                p.teleport(new Location(Bukkit.getWorld("world"), 0, 65, 0));
-            }
-            else if(command.equals(cmds.get(5)) && p.getName().equals("Imperayser")){
+            else if(command.equals(cmds.get(2)) && p.getName().equals("Imperayser")){
                 commands.invsee(p, args);
-            } else if(command.equals(cmds.get(6))){
+            } else if(command.equals(cmds.get(3))){
                 commands.tpaProcess(p, args, tpc);
-            } else if(command.equals(cmds.get(7)) && p.isOp()){
+            } else if(command.equals(cmds.get(4)) && p.isOp()){
                 commands.resetCooldowns(p, tpc);
-            } else if(command.equals(cmds.get(8)) && p.isOp()){
+            } else if(command.equals(cmds.get(5)) && p.isOp()){
                 p.getInventory().addItem(logsMain.getLookTool());
-            } else if(command.equalsIgnoreCase(cmds.get(10))){
+            } else if(command.equalsIgnoreCase(cmds.get(6))){
                 commands.punish(p, args, "ban");
-            } else if(command.equalsIgnoreCase(cmds.get(9))){
+            } else if(command.equalsIgnoreCase(cmds.get(7))){
                 commands.punish(p, args, "kick");
-            } else if(command.equalsIgnoreCase(cmds.get(11)) && p.isOp()){
+            } else if(command.equalsIgnoreCase(cmds.get(8)) && p.isOp()){
                 giveStuff(p);
-            } else if(command.equalsIgnoreCase(cmds.get(12))){
+            } else if(command.equalsIgnoreCase(cmds.get(9))){
                 StringBuilder sb = new StringBuilder();
                 for(String s : args){
                     sb.append(s).append(" ");

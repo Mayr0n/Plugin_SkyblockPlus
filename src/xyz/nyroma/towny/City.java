@@ -6,11 +6,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.*;
-
-import static xyz.nyroma.towny.CityManager.cities;
 
 public class City implements Serializable {
     private String royaume;
@@ -19,32 +16,43 @@ public class City implements Serializable {
     private ClaimsManager claimsManager;
     private MembersManager membersManager;
     private MoneyManager moneyManager;
+    private RelationsManager relationsManager;
+    private long id;
 
 
-    public City(String name, String royaume, Player owner) throws TownyException, AlreadyOwnerException {
-        try {
-            if (new CityManager().isAlreadyOwner(owner.getName())) {
-                throw new AlreadyOwnerException();
+    public City(String name, String royaume, String owner) throws TownyException {
+            if (new CityManager().isAlreadyOwner(owner)) {
+                throw new TownyException("Tu es déjà l'owner d'une ville !");
             }
-        } catch(NotExistException ignored){
-        }
+            if(CitiesCache.contains(name)){
+                throw new TownyException("Cette ville existe déjà !");
+            }
+            if(name.equals("all")){
+                throw new TownyException("Tu ne peux pas avoir ce nome de ville.");
+            }
+
+            long id = new Random().nextLong();
+            while(CitiesCache.hasID(id)){
+                id = new Random().nextLong();
+            }
+
+            this.id = id;
             this.name = name;
             this.royaume = royaume;
-            this.owner = owner.getName();
-            this.claimsManager = new ClaimsManager(this);
-            this.membersManager = new MembersManager(this);
-            this.membersManager.addMember(owner.getName());
-            this.moneyManager = new MoneyManager(this);
-            cities.add(this);
-
-            try {
-                new CityManager().serializeCity(this);
-            } catch (IOException e) {
-                e.printStackTrace();
-                throw new TownyException();
-            }
+            this.owner = owner;
+            this.claimsManager = new ClaimsManager();
+            this.membersManager = new MembersManager();
+            this.membersManager.addMember(owner);
+            this.moneyManager = new MoneyManager();
+            this.relationsManager = new RelationsManager();
+            CitiesCache.add(this);
+            CitiesCache.addID(this.id);
 
         System.out.println("Ville " + this.name + " créée !");
+    }
+
+    public RelationsManager getRelationsManager() {
+        return this.relationsManager;
     }
 
     public String getOwner(){
@@ -57,6 +65,10 @@ public class City implements Serializable {
 
     public String getName() {
         return this.name;
+    }
+
+    public long getID(){
+        return this.id;
     }
 
     public ClaimsManager getClaimsManager() {
@@ -75,13 +87,8 @@ public class City implements Serializable {
         return this;
     }
 
-    public boolean rename(String name, Player p) {
-        if (isOwner(p)) {
-            this.name = name;
-            return true;
-        } else {
-            return false;
-        }
+    public void rename(String name) {
+        this.name = name;
     }
 
     public void changeOwner(Player p) {
@@ -112,7 +119,6 @@ public class City implements Serializable {
         if(isOwner(p)){
             try {
                 new CityManager().removeCity(this);
-                super.finalize();
             } catch (Throwable throwable) {
                 throwable.printStackTrace();
             }

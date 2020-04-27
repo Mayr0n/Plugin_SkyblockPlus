@@ -35,12 +35,6 @@ public class speedy {
         }
         return null;
     }
-    public static File getSethomeFolder() {
-        return new File("./plugins/sethomes/");
-    }
-    public static File getSethomeFile(Player p) {
-        return new File("./plugins/sethomes/" + p.getName() + ".txt");
-    }
     public static ArrayList<String> getAllLines(BufferedReader reader) {
         Hashtable<String, String> aL = new Hashtable<>();
         ArrayList<String> allLines = new ArrayList<>();

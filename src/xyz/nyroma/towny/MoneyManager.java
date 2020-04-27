@@ -5,14 +5,13 @@ import java.io.Serializable;
 public class MoneyManager implements Serializable {
     private double amount = 500;
     private int taxes = 0;
-    private City city;
-
-    public MoneyManager(City city){
-        this.city = city;
-    }
 
     public void setTaxes(int taxes){
         this.taxes = taxes;
+    }
+
+    public int getTaxes(){
+        return this.taxes;
     }
 
     public void removeMoney(int amount){

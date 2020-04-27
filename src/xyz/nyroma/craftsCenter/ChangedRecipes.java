@@ -82,16 +82,29 @@ public class ChangedRecipes {
         sadd.setIngredient('b', Material.STRING);
         sadd.setIngredient('c', Material.IRON_INGOT);
 
-        ShapedRecipe trid = new ShapedRecipe(CraftsManager.getNamespacedkey(plugin, "trid"), new ItemStack(Material.REPEATER));
+        ShapedRecipe trid = new ShapedRecipe(CraftsManager.getNamespacedkey(plugin, "trid"), new ItemStack(Material.TRIDENT));
         trid.shape("aaa", ".b.", ".a.");
         trid.setIngredient('a', Material.DIAMOND);
         trid.setIngredient('b', Material.STICK);
 
-        Hashtable<ItemStack, PotionEffect> armor = new BetterArmorManager().build();
-        Iterator<ItemStack> keys = armor.keySet().iterator();
+        ShapedRecipe satur = new ShapedRecipe(CraftsManager.getNamespacedkey(plugin, "satur"), getSatur());
+        satur.shape("abc", "def", "ghi");
+        satur.setIngredient('a', Material.COOKED_BEEF);
+        satur.setIngredient('b', Material.COOKED_CHICKEN);
+        satur.setIngredient('c', Material.COOKED_MUTTON);
+        satur.setIngredient('d', Material.COOKED_PORKCHOP);
+        satur.setIngredient('e', Material.GOLDEN_APPLE);
+        satur.setIngredient('f', Material.COOKED_RABBIT);
+        satur.setIngredient('g', Material.BREAD);
+        satur.setIngredient('h', Material.GOLDEN_CARROT);
+        satur.setIngredient('i', Material.PUMPKIN_PIE);
 
-        return Arrays.asList(
-                coms, res, saver, nametag, beehive, beehive2, myce, sadd, trid,
+
+        Hashtable<ItemStack, PotionEffect> armor = new BetterArmorManager().build();
+        List<ItemStack> keys = new ArrayList<>(armor.keySet());
+
+        List<ShapedRecipe> recipes = Arrays.asList(
+                coms, res, saver, nametag, beehive, beehive2, myce, sadd, trid, satur,
                 simpleRecipe(Material.CHARCOAL, new ItemStack(Material.COAL_BLOCK), "coalb"),
                 simpleRecipe(Material.COAL_BLOCK, new ItemStack(Material.DIAMOND), "diamond"),
                 simpleRecipe(Material.FLINT, new ItemStack(Material.COBBLESTONE), "cobble"),
@@ -106,17 +119,20 @@ public class ChangedRecipes {
                 circleRecipe(Material.DIAMOND, Material.DIAMOND_LEGGINGS, getSuperAmor(Material.DIAMOND_LEGGINGS, "L"), "sleggings"),
                 circleRecipe(Material.DIAMOND, Material.DIAMOND_BOOTS, getSuperAmor(Material.DIAMOND_BOOTS, "B"), "sboots"),
                 circleRecipe(Material.IRON_BARS, Material.NETHER_STAR, new ItemStack(Material.SPAWNER), "spawner"),
+                circleRecipe(Material.ROTTEN_FLESH, Material.SHEARS, new ItemStack(Material.LEATHER), "leat"),
                 crossCompleteRecipe(Material.ROTTEN_FLESH, Material.RED_DYE, Material.WHEAT_SEEDS, new ItemStack(Material.RED_MUSHROOM), "rmush"),
                 crossCompleteRecipe(Material.SUGAR, Material.JUNGLE_LOG, Material.VINE, new ItemStack(Material.COCOA_BEANS, 4), "cacao"),
                 crossCompleteRecipe(Material.GREEN_DYE, Material.STRING, Material.ENDER_PEARL, new ItemStack(Material.SLIME_BALL), "slball"),
                 circleRecipe(Material.GREEN_DYE, Material.DIAMOND, new ItemStack(Material.EMERALD), "emer"),
-                crossCompleteRecipe(Material.GOLDEN_CARROT, Material.DIAMOND, Material.DIAMOND_HELMET, keys.next(), "nhelm"),
-                crossCompleteRecipe(Material.FEATHER, Material.DIAMOND, Material.DIAMOND_CHESTPLATE, keys.next(), "fchest"),
-                crossCompleteRecipe(Material.SUGAR, Material.DIAMOND, Material.DIAMOND_LEGGINGS, keys.next(), "slegs"),
-                crossCompleteRecipe(Material.SLIME_BALL, Material.DIAMOND, Material.DIAMOND_BOOTS, keys.next(), "jboots"),
+                crossCompleteRecipe(Material.GOLDEN_CARROT, Material.DIAMOND, Material.DIAMOND_HELMET, keys.get(3), "nhelm"),
+                crossCompleteRecipe(Material.FEATHER, Material.DIAMOND, Material.DIAMOND_CHESTPLATE, keys.get(2), "fchest"),
+                crossCompleteRecipe(Material.SUGAR, Material.DIAMOND, Material.DIAMOND_LEGGINGS, keys.get(1), "slegs"),
+                crossCompleteRecipe(Material.SLIME_BALL, Material.DIAMOND, Material.DIAMOND_BOOTS, keys.get(0), "jboots"),
                 crossCompleteRecipe(Material.STRING, Material.GOLD_INGOT, Material.FEATHER, getSlowFeather(), "slowf"),
                 demiCircleRecipe(Material.PHANTOM_MEMBRANE, Material.TNT, Material.DIAMOND, getPropulser(), "propul")
         );
+
+        return recipes;
     }
     public List<ShapelessRecipe> buildShapeless(){
         ShapelessRecipe c1 = new ShapelessRecipe(CraftsManager.getNamespacedkey(plugin, "c1"), new ItemStack(Material.BLUE_CONCRETE));
@@ -238,12 +254,21 @@ public class ChangedRecipes {
         cob.addIngredient(Material.COBBLESTONE_SLAB);
         cob.addIngredient(Material.COBBLESTONE_SLAB);
 
+        ShapelessRecipe sto = new ShapelessRecipe(CraftsManager.getNamespacedkey(plugin, "sto"), new ItemStack(Material.STONE_BRICKS));
+        sto.addIngredient(Material.STONE_BRICK_SLAB);
+        sto.addIngredient(Material.STONE_BRICK_SLAB);
+
         ShapelessRecipe fea = new ShapelessRecipe(CraftsManager.getNamespacedkey(plugin, "fea"), new ItemStack(Material.FEATHER));
         fea.addIngredient(Material.PHANTOM_MEMBRANE);
 
+        ShapelessRecipe bld = new ShapelessRecipe(CraftsManager.getNamespacedkey(plugin, "bld"), new ItemStack(Material.BLACK_DYE, 3));
+        bld.addIngredient(Material.CYAN_DYE);
+        bld.addIngredient(Material.YELLOW_DYE);
+        bld.addIngredient(Material.MAGENTA_DYE);
+
         return Arrays.asList(
           c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15, c16, grav, sand, grass, leather, slimeball, l1, l2, l3, l4, cob,
-                w1,w2,w3,w4,w5,w6,w7,w8,w9,w10,w11,w12,w13,w14,w15,fea
+                w1,w2,w3,w4,w5,w6,w7,w8,w9,w10,w11,w12,w13,w14,w15,fea,sto,bld
         );
     }
 
@@ -275,6 +300,16 @@ public class ChangedRecipes {
         i.setIngredient('b', m2);
         i.setIngredient('c', m3);
         return i;
+    }
+
+    public static ItemStack getSatur(){
+        ItemStack it = new ItemStack(Material.GOLDEN_APPLE);
+        ItemMeta im = it.getItemMeta();
+        im.setDisplayName("Festin");
+        im.addEnchant(Enchantment.DURABILITY, 10,true);
+        im.setLore(Arrays.asList("De quoi n'avoir jamais faim !"));
+        it.setItemMeta(im);
+        return it;
     }
 
     private ItemStack getPropulser(){

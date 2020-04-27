@@ -6,29 +6,20 @@ import java.util.List;
 
 public class MembersManager implements Serializable {
     private List<String> members = new ArrayList<>();
-    private City city;
-
-    public MembersManager(City city){
-        this.city = city;
-    }
 
     public List<String> getMembers() {
         return this.members;
-    }
-
-    public City getCity() {
-        return city;
     }
 
     public boolean addMember(String name){
         return this.members.add(name);
     }
 
-    public boolean removeMember(String name) throws NotExistException {
+    public boolean removeMember(String name) throws TownyException {
         if(this.members.contains(name)){
             return this.members.remove(name);
         } else {
-           throw new NotExistException();
+           throw new TownyException("Cette ville n'existe pas !");
         }
     }
 

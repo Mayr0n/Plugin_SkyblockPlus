@@ -1,6 +1,6 @@
 package xyz.nyroma.main;
 
-import xyz.nyroma.betterItems.BetterArmorManager;
+import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.*;
 import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
@@ -20,13 +20,12 @@ import org.bukkit.event.entity.*;
 import org.bukkit.event.player.*;
 import org.bukkit.event.world.ChunkUnloadEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import xyz.nyroma.towny.City;
 import xyz.nyroma.towny.CityManager;
-import xyz.nyroma.towny.NotExistException;
+import xyz.nyroma.towny.TownyException;
 
 import java.util.*;
 
@@ -38,6 +37,7 @@ public class listeners implements Listener {
     private int water = 0;
     private int flint = 0;
     private int kelp = 0;
+    private int playerSleep = 0;
     private CityManager cm = new CityManager();
 
     public listeners() {
@@ -47,18 +47,26 @@ public class listeners implements Listener {
     @EventHandler
     public void onChat(AsyncPlayerChatEvent e){
         Player p = e.getPlayer();
-        City city = null;
-
+        City city;
         String message;
 
         try {
-            city = cm.getCityOfAMember(p);
+            city = cm.getCityOfMember(p);
+            ChatColor cc;
+            ChatColor ps;
             if (p.isOp()) {
-                message = "[" + ChatColor.RED + city.getName() + ChatColor.WHITE + "] " + ChatColor.AQUA + p.getName() + ChatColor.WHITE + " : " + e.getMessage();
+                cc = ChatColor.RED;
             } else {
-                message = "[" + ChatColor.YELLOW + city.getName() + ChatColor.WHITE + "] " + ChatColor.AQUA + p.getName() + ChatColor.WHITE + " : " + e.getMessage();
+                cc = ChatColor.YELLOW;
             }
-        } catch (NotExistException e1) {
+            if(city.getOwner().equals(p.getName())){
+                ps = ChatColor.DARK_AQUA;
+            } else {
+                ps = ChatColor.AQUA;
+            }
+
+            message = "[" + ChatColor.BLUE + city.getRoyaume() + ChatColor.WHITE + "] " + "[" + cc + city.getName() + ChatColor.WHITE + "] " + ps + p.getName() + ChatColor.WHITE + " : " + e.getMessage();
+        } catch (TownyException e1) {
             message = "[" + ChatColor.YELLOW + "g" + ChatColor.WHITE + "] " + ChatColor.AQUA + p.getName() + ChatColor.WHITE + " : " + e.getMessage();
         }
 
@@ -157,63 +165,6 @@ public class listeners implements Listener {
         }
     }
 
-    private boolean hasLore(ItemStack item) {
-        try {
-            if (item.hasItemMeta()) {
-                return item.getItemMeta().hasLore();
-            } else {
-                return false;
-            }
-        } catch (NullPointerException e) {
-            return false;
-        }
-    }
-
-    @EventHandler
-    public void onMove(PlayerMoveEvent e) {
-        Player p = e.getPlayer();
-        ItemStack i = p.getInventory().getItemInMainHand();
-        if (i.getType().equals(Material.GOLDEN_AXE) && i.getItemMeta().getEnchants().containsValue(10)) {
-            p.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 30, 2));
-        }
-
-        Hashtable<ItemStack, PotionEffect> armor = new BetterArmorManager().build();
-        Enumeration<ItemStack> it = armor.keys();
-
-        try {
-            while (it.hasMoreElements()) {
-                ItemStack item = it.nextElement();
-                PlayerInventory inv = p.getInventory();
-                if (hasLore(item)) {
-                    for (ItemStack its : inv.getArmorContents()) {
-                        if (hasLore(its)) {
-                            if (item.getItemMeta().getLore().equals(its.getItemMeta().getLore())) {
-                                p.addPotionEffect(armor.get(item));
-                            }
-                        }
-                    }
-                }
-            }
-        } catch (NullPointerException ee) {
-            System.out.println("Fuck");
-        }
-
-        try {
-            ItemStack im = p.getInventory().getItemInOffHand();
-            if(im.getType().equals(Material.FEATHER) && im.getItemMeta().hasEnchants()){
-                p.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_FALLING, 10,5));
-            }
-        } catch(NullPointerException ignored){
-        }
-
-        if(BotlinkManager.isActivated) {
-            BotlinkManager blm = new BotlinkManager();
-            if (blm.hasMess()) {
-                blm.showMess();
-            }
-        }
-    }
-
     @EventHandler
     public void onDeath(PlayerDeathEvent e) {
         Player p = e.getEntity();
@@ -246,9 +197,17 @@ public class listeners implements Listener {
             Player d = (Player) e.getEntity();
             ItemStack i = p.getInventory().getItemInMainHand();
             if (i.getType().equals(Material.GOLDEN_AXE) && i.getItemMeta().getEnchants().containsValue(10) && e.getDamage() >= d.getHealth()) {
-                ItemStack head = new ItemStack(Material.PLAYER_HEAD);
-                Bukkit.getUnsafe().modifyItemStack(head, "{SkullOwner:\"" + d.getName() + "\"}");
-                d.getLocation().getWorld().dropItem(d.getLocation(), head);
+                ItemStack sk = new ItemStack(Material.PLAYER_HEAD);
+                SkullMeta skull = (SkullMeta) sk.getItemMeta();
+                try {
+                    if (skull != null) {
+                        skull.setOwningPlayer(d.getPlayer());
+                    }
+                    sk.setItemMeta(skull);
+                    Objects.requireNonNull(d.getLocation().getWorld()).dropItem(d.getLocation(), sk);
+                } catch(NullPointerException ee){
+                    Bukkit.broadcastMessage("listeners, l.84");
+                }
             }
         }
     }
@@ -358,7 +317,7 @@ public class listeners implements Listener {
                 Random r = new Random();
                 if (r.nextInt(2) == 0) {
                     Material sapling = Material.OAK_SAPLING;
-                    switch (r.nextInt(9)) {
+                    switch (r.nextInt(10)) {
                         case 0:
                             sapling = Material.ACACIA_SAPLING;
                             break;
@@ -385,6 +344,9 @@ public class listeners implements Listener {
                             break;
                         case 8:
                             sapling = Material.LILAC;
+                            break;
+                        case 9:
+                            sapling = Material.BEETROOT_SEEDS;
                             break;
                     }
                     loc.getWorld().dropItem(loc, new ItemStack(sapling));
@@ -496,7 +458,7 @@ public class listeners implements Listener {
                 loc.getWorld().dropItem(loc, new ItemStack(Material.GOLD_INGOT));
             }
         } else if (type.equals(EntityType.ENDERMAN)) {
-            int r = new Random().nextInt(10);
+            int r = new Random().nextInt(20);
             if (r == 2) {
                 loc.getWorld().dropItem(loc, new ItemStack(Material.DIAMOND));
             }
@@ -505,7 +467,7 @@ public class listeners implements Listener {
                 loc.getWorld().dropItem(loc, new ItemStack(Material.GLOWSTONE_DUST));
             }
         } else if (type.equals(EntityType.VILLAGER)) {
-            Bukkit.broadcastMessage(ChatColor.DARK_RED + e.getEventName() + " : " + e.getEntity().getLocation().toString());
+            Bukkit.broadcastMessage(ChatColor.DARK_RED + e.getEventName() + " : " + e.getEntity().getLocation().toString() + ", " + e.getHandlers());
             System.out.println(e.getEventName());
         }
     }
@@ -519,6 +481,17 @@ public class listeners implements Listener {
             e.getItemDrop().setItemStack(new ItemStack(Material.LAPIS_LAZULI));
         }
 
+    }
+
+    @EventHandler
+    public void onSleep(PlayerBedLeaveEvent e){
+        this.playerSleep++;
+        Player p = e.getPlayer();
+        if(this.playerSleep >= p.getWorld().getPlayers().size()/2){
+            this.playerSleep = 0;
+            p.getWorld().setTime(24000);
+        }
+        Bukkit.broadcastMessage(ChatColor.YELLOW + Integer.toString(this.playerSleep) + " dorment sur " + p.getWorld().getPlayers().size()/2);
     }
 }
 
