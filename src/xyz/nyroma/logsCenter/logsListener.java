@@ -93,7 +93,7 @@ public class logsListener implements Listener {
 
         //System.out.println(p.getInventory().getItemInMainHand().toString());
 
-        if(b.getType().equals(Material.BEDROCK)){
+        if(b.getType().equals(Material.BEDROCK) && p.isOp()){
             sendLogs(p, b.getLocation());
             e.setCancelled(true);
         } else {

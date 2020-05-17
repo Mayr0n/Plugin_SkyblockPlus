@@ -3,26 +3,31 @@ package xyz.nyroma.towny;
 import java.io.Serializable;
 
 public class MoneyManager implements Serializable {
-    private double amount = 500;
-    private int taxes = 0;
+    private float amount = 0;
+    private float taxes = 5;
 
-    public void setTaxes(int taxes){
+    public void setTaxes(float taxes){
         this.taxes = taxes;
     }
 
-    public int getTaxes(){
+    public float getTaxes(){
         return this.taxes;
     }
 
-    public void removeMoney(int amount){
-        this.amount -= amount;
+    public boolean removeMoney(float amount){
+        if(getAmount() - amount >= 0){
+            this.amount -= amount;
+            return true;
+        } else {
+            return false;
+        }
     }
 
-    public void addMoney(int amount){
+    public void addMoney(float amount){
         this.amount += amount;
     }
 
-    public double getAmount(){
+    public float getAmount(){
         return this.amount;
     }
 }

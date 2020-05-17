@@ -27,13 +27,13 @@ public class speedy {
             file.mkdir();
         }
     }
-    public static Player getPlayerByName(Server server, String name) throws NullPointerException {
+    public static Player getPlayerByName(Server server, String name) throws NotFoundException {
         for(Player p : server.getOnlinePlayers()){
             if(p.getName().equals(name)){
                 return p;
             }
         }
-        return null;
+        throw new NotFoundException("Joueur non trouvé.");
     }
     public static ArrayList<String> getAllLines(BufferedReader reader) {
         Hashtable<String, String> aL = new Hashtable<>();

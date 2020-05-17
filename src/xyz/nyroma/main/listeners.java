@@ -1,5 +1,6 @@
 package xyz.nyroma.main;
 
+import org.bukkit.entity.ExperienceOrb;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.*;
 import org.bukkit.block.Biome;
@@ -23,6 +24,9 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import xyz.nyroma.Capitalism.ScoreboardManager;
+import xyz.nyroma.craftsCenter.BetterCrafts;
+import xyz.nyroma.craftsCenter.CraftsManager;
 import xyz.nyroma.towny.City;
 import xyz.nyroma.towny.CityManager;
 import xyz.nyroma.towny.TownyException;
@@ -45,13 +49,19 @@ public class listeners implements Listener {
     }
 
     @EventHandler
+    public void onEat(PlayerItemConsumeEvent e){
+        if(e.getItem().isSimilar(BetterCrafts.getSatur())){
+            e.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.SATURATION, 7200*20, 1));
+        }
+    }
+
+    @EventHandler
     public void onChat(AsyncPlayerChatEvent e){
         Player p = e.getPlayer();
-        City city;
         String message;
-
-        try {
-            city = cm.getCityOfMember(p);
+        cm.getCityOfMember(p);
+        if(cm.getCityOfMember(p).isPresent()){
+            City city = cm.getCityOfMember(p).get();
             ChatColor cc;
             ChatColor ps;
             if (p.isOp()) {
@@ -65,9 +75,14 @@ public class listeners implements Listener {
                 ps = ChatColor.AQUA;
             }
 
-            message = "[" + ChatColor.BLUE + city.getRoyaume() + ChatColor.WHITE + "] " + "[" + cc + city.getName() + ChatColor.WHITE + "] " + ps + p.getName() + ChatColor.WHITE + " : " + e.getMessage();
-        } catch (TownyException e1) {
-            message = "[" + ChatColor.YELLOW + "g" + ChatColor.WHITE + "] " + ChatColor.AQUA + p.getName() + ChatColor.WHITE + " : " + e.getMessage();
+            message = "[" + ChatColor.GRAY + getTime() + ChatColor.WHITE + "] "
+                    + "[" + ChatColor.BLUE + city.getRoyaume() + ChatColor.WHITE + "] "
+                    + "[" + cc + city.getName() + ChatColor.WHITE + "] "
+                    + ps + p.getName() + ChatColor.WHITE + " : " + e.getMessage();
+        } else {
+            message = "[" + ChatColor.GRAY + getTime() + ChatColor.WHITE + "] "
+                    + "[" + ChatColor.YELLOW + "g" + ChatColor.WHITE + "] "
+                    + ChatColor.AQUA + p.getName() + ChatColor.WHITE + " : " + e.getMessage();
         }
 
         for(Player play : p.getServer().getOnlinePlayers()){
@@ -75,6 +90,24 @@ public class listeners implements Listener {
         }
         System.out.println(message);
         e.setCancelled(true);
+    }
+    private String getTime(){
+        Calendar calendar = Calendar.getInstance();
+        int hours = calendar.get(Calendar.HOUR_OF_DAY) + 6;
+        int minutes = calendar.get(Calendar.MINUTE);
+        String min;
+        String h;
+        if(hours >= 24){
+            h = "0" + (hours-24);
+        } else {
+            h = String.valueOf(hours);
+        }
+        if(minutes < 10){
+            min = "0" + minutes;
+        } else {
+            min = String.valueOf(minutes);
+        }
+        return h + ":" + min;
     }
 
     @EventHandler
@@ -164,7 +197,6 @@ public class listeners implements Listener {
             }
         }
     }
-
     @EventHandler
     public void onDeath(PlayerDeathEvent e) {
         Player p = e.getEntity();
@@ -189,7 +221,6 @@ public class listeners implements Listener {
             e.setDeathMessage(ChatColor.DARK_GREEN + e.getDeathMessage());
         }
     }
-
     @EventHandler
     public void onPlayerKilled(EntityDamageByEntityEvent e) {
         if (e.getDamager() instanceof Player && e.getEntity() instanceof Player) {
@@ -226,6 +257,12 @@ public class listeners implements Listener {
         if(BotlinkManager.isActivated) {
             botUpdatePlayers(p);
         }
+
+        for(NamespacedKey nk : CraftsManager.namespacedKeys){
+            p.discoverRecipe(nk);
+        }
+
+        p.setScoreboard(ScoreboardManager.current);
     }
 
     @EventHandler
@@ -302,7 +339,6 @@ public class listeners implements Listener {
             }
         }
     }
-
     @EventHandler
     public void onSneak(PlayerToggleSneakEvent e) {
         Player p = e.getPlayer();
@@ -380,22 +416,39 @@ public class listeners implements Listener {
             }
         } else if (b.getType().equals(Material.SEAGRASS)) {
             kelp++;
+            Material mat = Material.KELP;
             if (kelp == 20) {
+                switch(new Random().nextInt(6)){
+                    case 0:
+                        mat = Material.BRAIN_CORAL_FAN;
+                        break;
+                    case 1:
+                        mat = Material.BUBBLE_CORAL_FAN;
+                        break;
+                    case 2:
+                        mat = Material.FIRE_CORAL_FAN;
+                        break;
+                    case 3:
+                        mat = Material.HORN_CORAL_FAN;
+                        break;
+                    case 4:
+                        mat = Material.TUBE_CORAL_FAN;
+                        break;
+                }
                 kelp = 0;
-                loc.getWorld().dropItem(loc, new ItemStack(Material.KELP));
+                loc.getWorld().dropItem(loc, new ItemStack(mat));
             }
         }
     }
-
     @EventHandler
     public void onClick(PlayerInteractEvent e) {
+        Player p = e.getPlayer();
+        Block b = e.getClickedBlock();
         if (e.getAction().equals(Action.RIGHT_CLICK_BLOCK)) {
-            Player p = e.getPlayer();
-            Block b = e.getClickedBlock();
             ItemStack item = p.getInventory().getItemInMainHand();
+            ItemStack items2 = p.getInventory().getItemInOffHand();
 
             Location loc = b.getLocation().add(0, 1, 0);
-            try {
                 if (b.getType().equals(Material.CAULDRON)) {
                     water++;
                     if (water == 50) {
@@ -408,23 +461,130 @@ public class listeners implements Listener {
                         flint = 0;
                         p.getWorld().dropItem(p.getLocation(), new ItemStack(Material.FLINT));
                     }
-                } else if (b.getType().equals(Material.MAGMA_BLOCK) && item.getType().equals(Material.BUCKET)) {
-                    p.getInventory().setItemInMainHand(null);
+                } else if (b.getType().equals(Material.MAGMA_BLOCK) && item.getType().equals(Material.BUCKET) && !b.getBiome().equals(Biome.NETHER)) {
+                    p.getInventory().getItemInOffHand().setAmount(p.getInventory().getItemInMainHand().getAmount()-1);
+                    ItemStack is = p.getInventory().getItemInMainHand();
+                    ItemStack i = new ItemStack(is.getType(), is.getAmount()-1);
+                    p.getInventory().setItemInMainHand(i);
                     loc.getWorld().dropItem(loc, new ItemStack(Material.LAVA_BUCKET));
                 }
 
                 if (item.getType().equals(Material.FIREWORK_STAR) && item.getItemMeta().hasEnchants()) {
-                    if (loc.getY() < 255) {
-                        p.addPotionEffect(new PotionEffect(PotionEffectType.LEVITATION, 40, 10));
-                        p.playSound(b.getLocation(), Sound.ENTITY_DRAGON_FIREBALL_EXPLODE, 100,1);
-                        p.spawnParticle(Particle.EXPLOSION_NORMAL, p.getLocation(), 50);
-                    } else {
-                        p.sendMessage(ChatColor.RED + "Tu es beaucoup trop haut ! Le propulseur ne peut pas être utilisé à cette hauteur...");
+                    propulse(item, p);
+                } else if(items2.getType().equals(Material.FIREWORK_STAR) && items2.getItemMeta().hasEnchants()){
+                    propulse(item, p);
+                }
+        } else if(e.getAction() == Action.RIGHT_CLICK_AIR){
+            ItemStack item = p.getInventory().getItemInMainHand();
+            if(item.getType() == Material.DIRT && item.hasItemMeta()){
+                if(item.getItemMeta().hasEnchants()) {
+                    if(item.getItemMeta().getEnchants().keySet().contains(Enchantment.BINDING_CURSE)) {
+                        Location eye = p.getEyeLocation();
+                        double yaw = eye.getYaw();
+                        double pitch = eye.getPitch();
+
+                        double X = 0;
+                        double Y = -5 * sin(pitch);
+                        double Z = 0;
+
+                        if (yaw <= 0 && yaw >= -90) {
+                            X = 5 * cos(yaw);
+                            Z = 5 * sin(-yaw);
+                        } else if (yaw < -90 && yaw >= -180) {
+                            X = -5 * cos(yaw);
+                            Z = 5 * sin(yaw);
+                        } else if (yaw < -180 && yaw >= -270) {
+                            X = 5 * cos(yaw);
+                            Z = -5 * sin(yaw);
+                        } else if (yaw < -270) {
+                            X = -5 * cos(yaw);
+                            Z = 5 * sin(yaw);
+                        }
+
+                        if (X > -1 && X < 1) {
+                            X = 0;
+                        }
+                        if (Y > -1 && Y < 1) {
+                            Y = 0;
+                        }
+                        if (Z > -1 && Z < 1) {
+                            Z = 0;
+                        }
+
+                        Location loc = eye.add(X, Y, Z);
+
+                        if (loc.getBlock().getType() == Material.AIR) {
+                            CityManager cm = new CityManager();
+                            boolean can = false;
+                            if(cm.getClaimer(loc).isPresent()){
+                                City city = cm.getClaimer(loc).get();
+                                if(cm.getCityOfMember(p).isPresent()){
+                                    if(cm.getCityOfMember(p).get() == city){
+                                        can = true;
+                                    }
+                                }
+                            } else {
+                                can = true;
+                            }
+                            if(can){
+                                loc.getBlock().setType(Material.DIRT);
+                                int amount = item.getAmount();
+                                if(amount > 0){
+                                    p.getInventory().getItemInMainHand().setAmount(amount-1);
+                                } else {
+                                    p.getInventory().setItemInMainHand(null);
+                                }
+                            }
+                        } else {
+                            p.sendMessage(ChatColor.RED + "Il faut que le block soit un block d'air !");
+                        }
+                        p.spawnParticle(Particle.CLOUD, loc, 50);
+                        System.out.println(loc);
                     }
                 }
-
-            } catch (NullPointerException ignored) {
             }
+        }
+    }
+
+    public double cos(double angl){
+        return Math.round(Math.cos(Math.toRadians(angl)));
+    }
+    public double sin(double angl){
+        return Math.round(Math.sin(Math.toRadians(angl)));
+    }
+
+    public void propulse(ItemStack it, Player p){
+        if(p.getLocation().getY() < 255) {
+            Map<Enchantment, Integer> enchs = it.getItemMeta().getEnchants();
+            if (enchs.size() > 0) {
+                for (Enchantment ench : enchs.keySet()) {
+                    if (ench.equals(Enchantment.KNOCKBACK)) {
+                        Particle particle;
+                        int duration;
+                        switch (enchs.get(ench)) {
+                            case 1:
+                                particle = Particle.EXPLOSION_NORMAL;
+                                duration = 10;
+                                break;
+                            case 2:
+                                particle = Particle.EXPLOSION_LARGE;
+                                duration = 20;
+                                break;
+                            case 3:
+                                particle = Particle.EXPLOSION_HUGE;
+                                duration = 30;
+                                break;
+                            default:
+                                return;
+                        }
+                        p.addPotionEffect(new PotionEffect(PotionEffectType.LEVITATION, duration, 20));
+                        p.playSound(p.getLocation(), Sound.ENTITY_DRAGON_FIREBALL_EXPLODE, 100, 1);
+                        p.spawnParticle(particle, p.getLocation(), 50);
+                    }
+                }
+            }
+        } else {
+            p.sendMessage(ChatColor.RED + "Tu es beaucoup trop haut ! Le propulseur ne fonctionne pas à cette hauteur...");
         }
     }
 
@@ -458,7 +618,7 @@ public class listeners implements Listener {
                 loc.getWorld().dropItem(loc, new ItemStack(Material.GOLD_INGOT));
             }
         } else if (type.equals(EntityType.ENDERMAN)) {
-            int r = new Random().nextInt(20);
+            int r = new Random().nextInt(100);
             if (r == 2) {
                 loc.getWorld().dropItem(loc, new ItemStack(Material.DIAMOND));
             }
@@ -469,6 +629,11 @@ public class listeners implements Listener {
         } else if (type.equals(EntityType.VILLAGER)) {
             Bukkit.broadcastMessage(ChatColor.DARK_RED + e.getEventName() + " : " + e.getEntity().getLocation().toString() + ", " + e.getHandlers());
             System.out.println(e.getEventName());
+        } else if(type.equals(EntityType.ENDER_DRAGON)){
+            for(int i = 0 ; i < 10 ; i++){
+                ExperienceOrb orb = (ExperienceOrb) ent.getLocation().getWorld().spawnEntity(ent.getLocation(), EntityType.EXPERIENCE_ORB);
+                orb.setExperience(600);
+            }
         }
     }
 
@@ -478,7 +643,7 @@ public class listeners implements Listener {
         Location loc = p.getLocation();
         ItemStack item = e.getItemDrop().getItemStack();
         if (item.getType().equals(Material.IRON_NUGGET) && loc.getBlock().getType().equals(Material.WATER)) {
-            e.getItemDrop().setItemStack(new ItemStack(Material.LAPIS_LAZULI));
+            e.getItemDrop().setItemStack(new ItemStack(Material.LAPIS_LAZULI, item.getAmount()));
         }
 
     }
@@ -487,11 +652,19 @@ public class listeners implements Listener {
     public void onSleep(PlayerBedLeaveEvent e){
         this.playerSleep++;
         Player p = e.getPlayer();
-        if(this.playerSleep >= p.getWorld().getPlayers().size()/2){
-            this.playerSleep = 0;
-            p.getWorld().setTime(24000);
+        int max = p.getWorld().getPlayers().size()/2;
+        if(max == 0){
+            max = 1;
         }
-        Bukkit.broadcastMessage(ChatColor.YELLOW + Integer.toString(this.playerSleep) + " dorment sur " + p.getWorld().getPlayers().size()/2);
+        if(this.playerSleep >= max && p.getWorld().getTime() > 12500){
+            this.playerSleep = 0;
+            p.getWorld().setTime(0);
+        }
+        if(this.playerSleep == 0){
+            Bukkit.broadcastMessage(ChatColor.YELLOW + Integer.toString(this.playerSleep+1) + " dort sur " + max);
+        } else {
+            Bukkit.broadcastMessage(ChatColor.YELLOW + Integer.toString(this.playerSleep+1) + " dorment sur " + max);
+        }
     }
 }
 

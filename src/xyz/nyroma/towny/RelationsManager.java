@@ -13,8 +13,9 @@ public class RelationsManager implements Serializable {
 
     public boolean addAlly(City city){
         this.setNice(false);
-        this.enemies.remove(city);
-        return this.allies.add(city);
+        this.setEvil(false);
+        getEnemies().remove(city);
+        return getAllies().add(city);
     }
 
     public boolean getNice(){
@@ -26,28 +27,26 @@ public class RelationsManager implements Serializable {
     }
 
     public void setNice(boolean b){
-        if(allEnemies && b){
-            this.allEnemies = false;
-        }
         if(b){
-            this.allies.clear();
+            getEnemies().clear();
+            getAllies().clear();
+            this.allEnemies = false;
         }
         this.allAllies = b;
     }
 
     public void setEvil(boolean b){
-        if(allAllies && b){
-            this.allAllies = false;
-        }
         if(b){
-            this.enemies.clear();
+            getEnemies().clear();
+            getAllies().clear();
+            this.allAllies = false;
         }
         this.allEnemies = b;
     }
 
     public boolean removeAlly(City city){
-        if(allies.contains(city)){
-            return this.allies.remove(city);
+        if(getAllies().contains(city)){
+            return getAllies().remove(city);
         } else {
             return false;
         }
@@ -58,21 +57,22 @@ public class RelationsManager implements Serializable {
     }
 
     public boolean addEnemy(City city){
+        this.setNice(false);
         this.setEvil(false);
-        this.allies.remove(city);
-        return this.enemies.add(city);
+        getAllies().remove(city);
+        return getEnemies().add(city);
     }
 
     public boolean removeEnemy(City city){
-        if(enemies.contains(city)){
-            return this.enemies.remove(city);
+        if(getEnemies().contains(city)){
+            return getEnemies().remove(city);
         } else {
             return false;
         }
     }
 
     public ArrayList<City> getEnemies(){
-        return this.allies;
+        return this.enemies;
     }
 
 }

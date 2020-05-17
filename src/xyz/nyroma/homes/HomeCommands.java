@@ -72,7 +72,14 @@ public class HomeCommands implements CommandExecutor {
                     } catch (HomesException e) {
                         p.sendMessage(ChatColor.RED + e.getMessage());
                     } catch (ArrayIndexOutOfBoundsException e) {
-                        p.sendMessage(ChatColor.RED + "Il faut spécifier le nom du home à se téléporter !");
+                        StringBuilder sb = new StringBuilder();
+                        sb.append("Vos homes : ");
+                        for(String s : ph.getHomes().keySet()){
+                            sb.append(s).append(", ");
+                        }
+                        String s = sb.toString();
+                        int l = s.length() - 2;
+                        p.sendMessage(ChatColor.GREEN + s.substring(0, l));
                     }
                 } catch (HomesException e) {
                     p.sendMessage(ChatColor.RED + "Tu n'a aucun home enregistré !");

@@ -18,6 +18,7 @@ public class City implements Serializable {
     private MoneyManager moneyManager;
     private RelationsManager relationsManager;
     private long id;
+    private boolean faillite = false;
 
 
     public City(String name, String royaume, String owner) throws TownyException {
@@ -45,10 +46,22 @@ public class City implements Serializable {
             this.membersManager.addMember(owner);
             this.moneyManager = new MoneyManager();
             this.relationsManager = new RelationsManager();
+
+            if(this.name.equals("l'Etat")){
+                this.moneyManager.addMoney(999999);
+            }
             CitiesCache.add(this);
             CitiesCache.addID(this.id);
 
         System.out.println("Ville " + this.name + " créée !");
+    }
+
+    public boolean getFaillite(){
+        return this.faillite;
+    }
+
+    public void setFaillite(boolean faillite) {
+        this.faillite = faillite;
     }
 
     public RelationsManager getRelationsManager() {
@@ -95,20 +108,15 @@ public class City implements Serializable {
         this.owner = p.getName();
     }
 
-    public boolean sendInvit(Player sender, Player toAdd) {
-        if(isOwner(sender)) {
-            ItemStack is = new ItemStack(Material.PAPER);
-            ItemMeta im = is.getItemMeta();
-            im.setDisplayName("Invitation");
-            im.setLore(Arrays.asList("Invitation à rejoindre la ville :", this.name, "pour :", toAdd.getName()));
-            im.addEnchant(Enchantment.DURABILITY, 10, true);
-            is.setItemMeta(im);
+    public void sendInvit(Player toAdd) {
+        ItemStack is = new ItemStack(Material.PAPER);
+        ItemMeta im = is.getItemMeta();
+        im.setDisplayName("Invitation");
+        im.setLore(Arrays.asList("Invitation à rejoindre la ville :", this.name, "pour :", toAdd.getName()));
+        im.addEnchant(Enchantment.DURABILITY, 10, true);
+        is.setItemMeta(im);
 
-            toAdd.getInventory().addItem(is);
-            return true;
-        } else {
-            return false;
-        }
+        toAdd.getInventory().addItem(is);
     }
 
     private boolean isOwner(Player p) {
@@ -117,11 +125,7 @@ public class City implements Serializable {
 
     public boolean remove(Player p){
         if(isOwner(p)){
-            try {
-                new CityManager().removeCity(this);
-            } catch (Throwable throwable) {
-                throwable.printStackTrace();
-            }
+            new CityManager().removeCity(this);
             return true;
         } else {
             return false;

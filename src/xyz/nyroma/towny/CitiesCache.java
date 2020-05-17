@@ -1,10 +1,17 @@
 package xyz.nyroma.towny;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import xyz.nyroma.main.speedy;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
@@ -14,13 +21,15 @@ public class CitiesCache {
     private static List<Long> ids = new ArrayList<>();
 
     public static boolean contains(String name) {
-        for (City city : cities) {
-            if (city.getName().equals(name)) return true;
+        try {
+            CitiesCache.get(name);
+            return true;
+        } catch (TownyException e) {
+            return false;
         }
-        return false;
     }
 
-    public static boolean hasID(long id){
+    public static boolean hasID(long id) {
         return ids.contains(id);
     }
 
@@ -36,14 +45,25 @@ public class CitiesCache {
             System.out.println("Il n'existe aucune ville sur le serveur.");
         }
 
+        System.out.println("??");
+
         try {
-            CitiesCache.get("l'Etat");
+            City city = CitiesCache.get("l'Etat");
+            city.getMoneyManager().setTaxes(0);
+            city.getClaimsManager().setMax(99999);
+            city.getClaimsManager().addClaim(new Location(Bukkit.getWorld("world"), 1, 0, 1));
+            city.getClaimsManager().addClaim(new Location(Bukkit.getWorld("world"), -1, 0, -1));
+            city.getClaimsManager().addClaim(new Location(Bukkit.getWorld("world"), 1, 0, -1));
+            city.getClaimsManager().addClaim(new Location(Bukkit.getWorld("world"), -1, 0, 1));
+            System.out.println("1");
+            city.getRelationsManager().setNice(false);
+            System.out.println("2");
+            city.getRelationsManager().setEvil(false);
+            System.out.println("3");
+            city.getRelationsManager().addAlly(CitiesCache.get("Warriors"));
+            System.out.println("4");
         } catch (TownyException e) {
-            try {
-                new City("l'Etat", "State", "Xénée");
-            } catch (TownyException e1) {
-                e1.printStackTrace();
-            }
+            System.out.println(e.getMessage());
         }
 
         System.out.println("Villes chargées !");
@@ -63,7 +83,7 @@ public class CitiesCache {
         throw new TownyException("Cette ville n'existe pas !");
     }
 
-    public static boolean remove(City city){
+    public static boolean remove(City city) {
         return cities.remove(city);
     }
 
@@ -84,6 +104,7 @@ public class CitiesCache {
         for (City city : cities) {
             try {
                 serializeCity(city);
+                backupCity(city);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -91,14 +112,23 @@ public class CitiesCache {
         System.out.println("Villes enregistrées !");
     }
 
+    private static void backupCity(City city) throws IOException {
+        writeInJson(new File("data/towny/" + "cities/" + city.getID() + "_backup.json"), city);
+    }
+
     public static void serializeCity(City city) throws IOException {
-        File cityFile = new File("data/towny/" + "cities/" + city.getID() + ".txt");
-        if (!cityFile.exists()) {
-            cityFile.createNewFile();
-        }
-        ObjectOutputStream oos = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(cityFile)));
-        oos.writeObject(city);
-        oos.close();
+        writeInJson(new File("data/towny/" + "cities/" + city.getID() + ".json"), city);
+    }
+
+    private static void writeInJson(File file, City city) throws IOException {
+        speedy.testFileExist(file);
+
+        GsonBuilder builder = new GsonBuilder();
+        Gson g = builder.setPrettyPrinting().create();
+        String json = g.toJson(city);
+        FileWriter fw = new FileWriter(file);
+        fw.write(json);
+        fw.close();
     }
 
     public static Hashtable<City, String> getCitiesFromFile() throws TownyException {
@@ -107,38 +137,46 @@ public class CitiesCache {
         try {
             for (File file : citiesFolder.listFiles()) {
                 try {
-                    City city = getCityFromFile(file);
-                    cities.put(city, city.getOwner());
-                } catch (TownyException e) {
-                    e.printStackTrace();
+                    if (file.getName().substring(file.getName().length() - 5).equals(".json")) {
+                        if (!file.getName().contains("backup")) {
+                            try {
+                                City city = getCityFromFile(file);
+                                CitiesCache.cities.add(city);
+                                System.out.println("Ville \"" + city.getName() + "\"ajoutée.");
+                            } catch (TownyException e) {
+                                System.out.println(e.getMessage());
+                            }
+                        }
+                    } else {
+                        System.out.println("Mauvaise extension, suppresion du fichier \"" + file.getName() + "\"...");
+                        if (file.delete()) {
+                            System.out.println("Fichier supprimé.");
+                        } else {
+                            System.out.println("Le fichier n'a pas pu être supprimé.");
+                        }
+                    }
+                } catch (ArrayIndexOutOfBoundsException e) {
+                    System.out.println("Mauvaise extension, suppresion du fichier \"" + file.getName() + "\"...");
+                    if (file.delete()) {
+                        System.out.println("Fichier supprimé.");
+                    } else {
+                        System.out.println("Le fichier n'a pas pu être supprimé.");
+                    }
                 }
             }
         } catch (NullPointerException e) {
-            throw new TownyException("Cette ville n'existe pas !");
+            throw new TownyException("Il n'existe aucune ville sur le serveur.");
         }
         return cities;
     }
 
     public static City getCityFromFile(File file) throws TownyException {
+        GsonBuilder builder = new GsonBuilder();
+        Gson gson = builder.setPrettyPrinting().create();
         try {
-            ObjectInputStream oos = new ObjectInputStream(new BufferedInputStream(new FileInputStream(file)));
-            Object obj = oos.readObject();
-            oos.close();
-            if (obj.getClass().equals(xyz.nyroma.towny.City.class)) {
-
-                return (City) obj;
-            } else {
-                throw new TownyException("Cette ville n'existe pas !");
-            }
+            return gson.fromJson(new FileReader(file), City.class);
         } catch (IOException e) {
-            file.delete();
-            throw new TownyException("Ce fichier ne dirige pas vers une ville existante. Suppression...");
-        } catch (ClassNotFoundException e) {
-            throw new TownyException("Oh.");
+            throw new TownyException("ah");
         }
-    }
-
-    public void deserializeAll() {
-        cities.addAll(getCities());
     }
 }

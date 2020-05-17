@@ -1,7 +1,6 @@
 package xyz.nyroma.craftsCenter;
 
-import xyz.nyroma.betterItems.BetterArmorManager;
-import xyz.nyroma.main.customItems;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
@@ -9,14 +8,15 @@ import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.inventory.ShapelessRecipe;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.potion.PotionEffect;
+import xyz.nyroma.main.customItems;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
 
-public class ChangedRecipes {
-    private JavaPlugin plugin;
+public class BetterCrafts {
+    private static JavaPlugin plugin;
 
-    public ChangedRecipes(JavaPlugin plugin) {
+    public BetterCrafts(JavaPlugin plugin) {
         this.plugin = plugin;
     }
 
@@ -99,10 +99,6 @@ public class ChangedRecipes {
         satur.setIngredient('h', Material.GOLDEN_CARROT);
         satur.setIngredient('i', Material.PUMPKIN_PIE);
 
-
-        Hashtable<ItemStack, PotionEffect> armor = new BetterArmorManager().build();
-        List<ItemStack> keys = new ArrayList<>(armor.keySet());
-
         List<ShapedRecipe> recipes = Arrays.asList(
                 coms, res, saver, nametag, beehive, beehive2, myce, sadd, trid, satur,
                 simpleRecipe(Material.CHARCOAL, new ItemStack(Material.COAL_BLOCK), "coalb"),
@@ -120,16 +116,17 @@ public class ChangedRecipes {
                 circleRecipe(Material.DIAMOND, Material.DIAMOND_BOOTS, getSuperAmor(Material.DIAMOND_BOOTS, "B"), "sboots"),
                 circleRecipe(Material.IRON_BARS, Material.NETHER_STAR, new ItemStack(Material.SPAWNER), "spawner"),
                 circleRecipe(Material.ROTTEN_FLESH, Material.SHEARS, new ItemStack(Material.LEATHER), "leat"),
+                circleRecipe(Material.WATER_BUCKET, Material.MAGMA_BLOCK, new ItemStack(Material.SLIME_BLOCK), "slimeb"),
+                circleRecipe(Material.DIRT, Material.FEATHER, getAngelicDirt(), "angelicdirt"),
                 crossCompleteRecipe(Material.ROTTEN_FLESH, Material.RED_DYE, Material.WHEAT_SEEDS, new ItemStack(Material.RED_MUSHROOM), "rmush"),
                 crossCompleteRecipe(Material.SUGAR, Material.JUNGLE_LOG, Material.VINE, new ItemStack(Material.COCOA_BEANS, 4), "cacao"),
                 crossCompleteRecipe(Material.GREEN_DYE, Material.STRING, Material.ENDER_PEARL, new ItemStack(Material.SLIME_BALL), "slball"),
+                crossCompleteRecipe(Material.COBBLESTONE, Material.GUNPOWDER, Material.WATER_BUCKET, new ItemStack(Material.CLAY, 4), "clayc"),
                 circleRecipe(Material.GREEN_DYE, Material.DIAMOND, new ItemStack(Material.EMERALD), "emer"),
-                crossCompleteRecipe(Material.GOLDEN_CARROT, Material.DIAMOND, Material.DIAMOND_HELMET, keys.get(3), "nhelm"),
-                crossCompleteRecipe(Material.FEATHER, Material.DIAMOND, Material.DIAMOND_CHESTPLATE, keys.get(2), "fchest"),
-                crossCompleteRecipe(Material.SUGAR, Material.DIAMOND, Material.DIAMOND_LEGGINGS, keys.get(1), "slegs"),
-                crossCompleteRecipe(Material.SLIME_BALL, Material.DIAMOND, Material.DIAMOND_BOOTS, keys.get(0), "jboots"),
                 crossCompleteRecipe(Material.STRING, Material.GOLD_INGOT, Material.FEATHER, getSlowFeather(), "slowf"),
-                demiCircleRecipe(Material.PHANTOM_MEMBRANE, Material.TNT, Material.DIAMOND, getPropulser(), "propul")
+                demiCircleRecipe(Material.PHANTOM_MEMBRANE, Material.TNT, Material.IRON_INGOT, getPropulser(1), "propul1"),
+                demiCircleRecipe(Material.PHANTOM_MEMBRANE, Material.TNT, Material.GOLD_INGOT, getPropulser(2), "propul2"),
+                demiCircleRecipe(Material.PHANTOM_MEMBRANE, Material.TNT, Material.DIAMOND, getPropulser(3), "propul3")
         );
 
         return recipes;
@@ -272,20 +269,30 @@ public class ChangedRecipes {
         );
     }
 
-    private ShapedRecipe simpleRecipe(Material material, ItemStack item, String name) {
+    public ItemStack getAngelicDirt(){
+        ItemStack it = new ItemStack(Material.DIRT, 8);
+        ItemMeta im = it.getItemMeta();
+        im.setDisplayName("Angelic Dirt");
+        im.addEnchant(Enchantment.BINDING_CURSE, 1, true);
+        im.setLore(Arrays.asList(ChatColor.GOLD + "Posez ce bloc n'importe où, même dans le vide !"));
+        it.setItemMeta(im);
+        return it;
+    }
+
+    public static ShapedRecipe simpleRecipe(Material material, ItemStack item, String name) {
         ShapedRecipe i = new ShapedRecipe(CraftsManager.getNamespacedkey(plugin, name), item);
         i.shape("aaa", "aaa", "aaa");
         i.setIngredient('a', material);
         return i;
     }
-    private ShapedRecipe circleRecipe(Material m1, Material m2, ItemStack item, String name) {
+    public static ShapedRecipe circleRecipe(Material m1, Material m2, ItemStack item, String name) {
         ShapedRecipe i = new ShapedRecipe(CraftsManager.getNamespacedkey(plugin, name), item);
         i.shape("aaa", "aba", "aaa");
         i.setIngredient('a', m1);
         i.setIngredient('b', m2);
         return i;
     }
-    private ShapedRecipe demiCircleRecipe(Material m1, Material m2, Material m3, ItemStack item, String name) {
+    public static ShapedRecipe demiCircleRecipe(Material m1, Material m2, Material m3, ItemStack item, String name) {
         ShapedRecipe i = new ShapedRecipe(CraftsManager.getNamespacedkey(plugin, name), item);
         i.shape("aaa", "aba", "ccc");
         i.setIngredient('a', m1);
@@ -293,7 +300,7 @@ public class ChangedRecipes {
         i.setIngredient('b', m3);
         return i;
     }
-    private ShapedRecipe crossCompleteRecipe(Material m1, Material m2, Material m3, ItemStack item, String name) {
+    public static ShapedRecipe crossCompleteRecipe(Material m1, Material m2, Material m3, ItemStack item, String name) {
         ShapedRecipe i = new ShapedRecipe(CraftsManager.getNamespacedkey(plugin, name), item);
         i.shape("aba", "bcb", "aba");
         i.setIngredient('a', m1);
@@ -312,12 +319,20 @@ public class ChangedRecipes {
         return it;
     }
 
-    private ItemStack getPropulser(){
+    private ItemStack getPropulser(int level){
         ItemStack it = new ItemStack(Material.FIREWORK_STAR);
         ItemMeta im = it.getItemMeta();
-        im.setDisplayName("Propulseur");
-        im.addEnchant(Enchantment.KNOCKBACK, 5,true);
-        im.setLore(Arrays.asList("POUF", "Clic gauche : permet un recul 5", "Clic droit : permet de s'élancer dans les airs"));
+        StringBuilder sb = new StringBuilder();
+        sb.append(ChatColor.DARK_GREEN + "Propulseur").append(" [");
+        for(int i = 0 ; i < level ; i++){
+            sb.append("I");
+        }
+        sb.append("]");
+        im.setDisplayName(sb.toString());
+        im.addEnchant(Enchantment.KNOCKBACK, level,true);
+        im.setLore(Arrays.asList(ChatColor.GREEN + "POUF",
+                ChatColor.DARK_AQUA + "Clic gauche :" + ChatColor.AQUA + " permet un recul " + level,
+                ChatColor.DARK_AQUA + "Clic droit :" + ChatColor.AQUA + " permet de s'élancer dans les airs"));
         it.setItemMeta(im);
         return it;
     }

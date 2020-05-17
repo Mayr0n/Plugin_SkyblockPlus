@@ -13,8 +13,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
+import xyz.nyroma.Capitalism.ScoreboardManager;
 import xyz.nyroma.betterItems.BetterArmorManager;
-import xyz.nyroma.craftsCenter.ChangedRecipes;
 import xyz.nyroma.towny.City;
 import xyz.nyroma.towny.CityManager;
 import xyz.nyroma.towny.TownyException;
@@ -43,6 +43,32 @@ public class TaskManager {
                 }
             }
         }.runTaskTimer(plugin, 5, 5);
+
+        ScoreboardManager sm = new ScoreboardManager(server);
+        sm.build();
+
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                sm.refresh();
+            }
+        }.runTaskTimer(plugin, 20, 20);
+
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                sm.setScoreboard(server);
+            }
+        }.runTaskTimer(plugin, 60*20, 60*20);
+
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                cm.applyTaxes(server);
+            }
+        }.runTaskTimer(plugin, 12*3600*20L, 12*3600*20L);
+
+
     }
 
     public void applyEffects(Player p){
@@ -73,10 +99,6 @@ public class TaskManager {
             System.out.println("Fuck");
         }
 
-        if(p.getInventory().contains(ChangedRecipes.getSatur())){
-            p.addPotionEffect(new PotionEffect(PotionEffectType.SATURATION, 100, 5));
-        }
-
         try {
             ItemStack im = p.getInventory().getItemInOffHand();
             if(im.getType().equals(Material.FEATHER) && im.getItemMeta().hasEnchants()){
@@ -87,22 +109,25 @@ public class TaskManager {
     }
     public void checkClaims(Player p){
         Location loc = p.getLocation();
-        try {
-            p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.DARK_RED + "- Claim par " + cm.getClaimer(loc).getName() + " -"));
-        } catch (TownyException e1) {
+        if(cm.getClaimer(loc).isPresent()){
+            City city = cm.getClaimer(loc).get();
+            p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.DARK_RED + "- Claim par " + city.getName() + " -"));
+        } else {
             p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.DARK_GREEN + "- Territoire libre -"));
         }
     }
 
     private void checkEnemy(Player p){
-        try {
-            City city = cm.getClaimer(p.getLocation());
-            if((city.getRelationsManager().getEnemies().contains(cm.getCityOfMember(p)) || city.getRelationsManager().getEvil()) && !city.getMembersManager().isMember(p.getName())){
-                p.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 100,5));
-                p.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 100,5));
-                p.addPotionEffect(new PotionEffect(PotionEffectType.POISON, 100,5));
+        if(cm.getClaimer(p.getLocation()).isPresent()){
+            City city = cm.getClaimer(p.getLocation()).get();
+            if(cm.getCityOfMember(p).isPresent()){
+                City ciOfM = cm.getCityOfMember(p).get();
+                if((city.getRelationsManager().getEnemies().contains(ciOfM) || city.getRelationsManager().getEvil()) && !city.getMembersManager().isMember(p.getName())){
+                    p.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 100,5));
+                    p.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 100,5));
+                    p.addPotionEffect(new PotionEffect(PotionEffectType.POISON, 100,5));
+                }
             }
-        } catch (TownyException ignored) {
         }
     }
 

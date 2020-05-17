@@ -44,3 +44,15 @@ commands:
     description: ok
   gethomes:
     description: ok
+  bank:
+    description: ok
+  sbank:
+    description: ok
+  job:
+    description: ok
+  shop:
+    description: ok
+  staff:
+    description: ok
+  eclaim:
+    description: ok

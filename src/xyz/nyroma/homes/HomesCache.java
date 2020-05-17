@@ -10,7 +10,6 @@ import java.util.ArrayList;
 public class HomesCache {
     public static ArrayList<PlayerHomes> sethomes = new ArrayList<>();
     private static File folder = new File("data/sethomes/");
-
     public static void setup(JavaPlugin plugin) {
         speedy.testFolderExist(folder);
         try {
@@ -28,12 +27,10 @@ public class HomesCache {
             }
         }.runTaskTimer(plugin, 10 * 60 * 20L, 10 * 60 * 20L);
     }
-
     public static void add(PlayerHomes ph){
         sethomes.add(ph);
         serializeHome(ph);
     }
-
     public static PlayerHomes get(String pseudo) throws HomesException {
         for(PlayerHomes ph : sethomes){
             if(ph.getPlayer().equals(pseudo)){
@@ -42,11 +39,9 @@ public class HomesCache {
         }
         throw new HomesException(pseudo + " n'a pas de Playerhomes.");
     }
-
     public static ArrayList<PlayerHomes> getAllSethomes(){
         return sethomes;
     }
-
     public static void serializeAll() {
         System.out.println("Enregistrement des homes...");
         for (PlayerHomes ph : sethomes) {
@@ -54,7 +49,6 @@ public class HomesCache {
         }
         System.out.println("Homes enregistrés !");
     }
-
     public static void serializeHome(PlayerHomes ph) {
         try {
             File homeFile = new File("data/sethomes/" + ph.getPlayer() + ".txt");
@@ -69,7 +63,6 @@ public class HomesCache {
             e.printStackTrace();
         }
     }
-
     public static ArrayList<PlayerHomes> getHomesFromFile() throws HomesException {
         ArrayList<PlayerHomes> homes = new ArrayList<>();
         try {
@@ -82,7 +75,6 @@ public class HomesCache {
         }
         return homes;
     }
-
     public static PlayerHomes getHomeFromFile(File file) throws HomesException {
         try {
             ObjectInputStream oos = new ObjectInputStream(new BufferedInputStream(new FileInputStream(file)));

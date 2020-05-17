@@ -15,11 +15,11 @@ public class MembersManager implements Serializable {
         return this.members.add(name);
     }
 
-    public boolean removeMember(String name) throws TownyException {
+    public boolean removeMember(String name) {
         if(this.members.contains(name)){
             return this.members.remove(name);
         } else {
-           throw new TownyException("Cette ville n'existe pas !");
+           return false;
         }
     }
 

