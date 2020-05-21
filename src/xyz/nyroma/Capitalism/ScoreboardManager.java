@@ -46,11 +46,19 @@ public class ScoreboardManager {
         this.pourcentage = miscScoreboard.registerNewObjective("Pourcentages", "dummy", ChatColor.DARK_RED + "Pour% richesses");
         this.pourcentage.setDisplaySlot(DisplaySlot.SIDEBAR);
 
+        o = miscScoreboard.registerNewObjective("health", "health", "health");
+        o.setDisplaySlot(DisplaySlot.PLAYER_LIST);
+        o.setRenderType(RenderType.HEARTS);
+
         //------------------------------
         this.deathScoreboard = manager.getNewScoreboard();
 
         this.deaths = deathScoreboard.registerNewObjective("IL_EST_MORT_LOL", "dummy", ChatColor.DARK_RED + "IL EST MORT LOL");
         this.deaths.setDisplaySlot(DisplaySlot.SIDEBAR);
+
+        o = deathScoreboard.registerNewObjective("health", "health", "health");
+        o.setDisplaySlot(DisplaySlot.PLAYER_LIST);
+        o.setRenderType(RenderType.HEARTS);
 
         //------------------------------
 

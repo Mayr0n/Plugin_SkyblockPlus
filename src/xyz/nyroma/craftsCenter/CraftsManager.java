@@ -1,11 +1,13 @@
 package xyz.nyroma.craftsCenter;
 
+import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Server;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.inventory.ShapelessRecipe;
 import org.bukkit.plugin.java.JavaPlugin;
-import xyz.nyroma.betterItems.BetterArmorManager;
+import xyz.nyroma.betterItems.BetterArmorRecipes;
+import xyz.nyroma.betterItems.BetterToolsRecipes;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,19 +25,19 @@ public class CraftsManager {
 
     public void build(){
         for(ShapedRecipe r : new EggRecipes(plugin).build()){
-            server.addRecipe(r);
+            Bukkit.addRecipe(r);
         }
-        for(ShapedRecipe r : new BetterToolsRecipes(plugin).build()){
-            server.addRecipe(r);
+        for(ShapedRecipe r : new BetterToolsRecipes().getRecipes(plugin)){
+            Bukkit.addRecipe(r);
+        }
+        for(ShapedRecipe r : new BetterArmorRecipes().getRecipes(plugin)){
+            Bukkit.addRecipe(r);
         }
         for(ShapedRecipe r : new BetterCrafts(plugin).buildShapes()){
-            server.addRecipe(r);
+            Bukkit.addRecipe(r);
         }
         for(ShapelessRecipe r : new BetterCrafts(plugin).buildShapeless()){
-            server.addRecipe(r);
-        }
-        for(ShapedRecipe r : new BetterArmorManager().getRecipes()){
-            server.addRecipe(r);
+            Bukkit.addRecipe(r);
         }
     }
 

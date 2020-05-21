@@ -3,6 +3,7 @@ package xyz.nyroma.Capitalism.jobs;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.craftbukkit.v1_15_R1.entity.CraftItem;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -59,6 +60,9 @@ public class JobListeners implements Listener {
                             case WITHER:
                             case ELDER_GUARDIAN:
                                 bank.add(200);
+                                break;
+                            case SHULKER:
+                                bank.add(0.5f);
                                 break;
                             case WITHER_SKELETON:
                             case GHAST:
@@ -141,7 +145,7 @@ public class JobListeners implements Listener {
             try {
                 if (JobManager.getJob(p.getName()).equals(Job.FARMER)) {
                     Bank bank = BankCache.get(p.getName());
-                    bank.add(0.25f);
+                    bank.add(0.125f);
                 }
             } catch (JobException ignored) {
             }
@@ -151,14 +155,23 @@ public class JobListeners implements Listener {
     @EventHandler
     public void onFarm(PlayerInteractEvent e){
         if(e.getAction().equals(Action.RIGHT_CLICK_BLOCK)){
-            Player p = e.getPlayer();
-            try {
-                if((p.getInventory().getItemInOffHand().getType().equals(Material.BONE_MEAL) || p.getInventory().getItemInMainHand().getType().equals(Material.BONE_MEAL))
-                        && JobManager.getJob(p.getName()).equals(Job.FARMER)){
-                    Bank bank = BankCache.get(p.getName());
-                    bank.add(0.1f);
+            Block b = e.getClickedBlock();
+            if (b.getType().equals(Material.WHEAT) ||
+                    b.getType().equals(Material.BEETROOTS) ||
+                    b.getType().equals(Material.MELON) ||
+                    b.getType().equals(Material.PUMPKIN) ||
+                    b.getType().equals(Material.CARROTS) ||
+                    b.getType().equals(Material.POTATOES)
+            ) {
+                Player p = e.getPlayer();
+                try {
+                    if ((p.getInventory().getItemInOffHand().getType().equals(Material.BONE_MEAL) || p.getInventory().getItemInMainHand().getType().equals(Material.BONE_MEAL))
+                            && JobManager.getJob(p.getName()).equals(Job.FARMER)) {
+                        Bank bank = BankCache.get(p.getName());
+                        bank.add(0.1f);
+                    }
+                } catch (JobException ignored) {
                 }
-            } catch (JobException ignored) {
             }
         }
     }
@@ -208,12 +221,16 @@ public class JobListeners implements Listener {
     @EventHandler
     public void onFishing(PlayerFishEvent e) {
         Player p = e.getPlayer();
-        try {
-            if (JobManager.getJob(p.getName()).equals(Job.FISHER)) {
-                Bank bank = BankCache.get(p.getName());
-                bank.add(0.5f);
+        if(e.getCaught() != null) {
+            if(e.getCaught() instanceof CraftItem) {
+                try {
+                    if (JobManager.getJob(p.getName()).equals(Job.FISHER)) {
+                        Bank bank = BankCache.get(p.getName());
+                        bank.add(0.25f);
+                    }
+                } catch (JobException ignored) {
+                }
             }
-        } catch (JobException ignored) {
         }
     }
 

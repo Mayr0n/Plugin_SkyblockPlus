@@ -10,10 +10,10 @@ import xyz.nyroma.Capitalism.bank.BankCommands;
 import xyz.nyroma.Capitalism.bank.BankListeners;
 import xyz.nyroma.Capitalism.bourse.ShopCommands;
 import xyz.nyroma.Capitalism.bourse.ShopListeners;
-import xyz.nyroma.Capitalism.bourse.ShopstandCache;
 import xyz.nyroma.Capitalism.jobs.JobCommands;
 import xyz.nyroma.Capitalism.jobs.JobListeners;
 import xyz.nyroma.Capitalism.jobs.JobManager;
+import xyz.nyroma.betterItems.BetterListeners;
 import xyz.nyroma.commands.CommandManager;
 import xyz.nyroma.craftsCenter.CraftsManager;
 import xyz.nyroma.homes.*;
@@ -57,6 +57,7 @@ public class main extends JavaPlugin {
         new CraftsManager(this, getServer()).build();
 
         Bukkit.getServer().getPluginManager().registerEvents(new listeners(), this);
+        Bukkit.getServer().getPluginManager().registerEvents(new BetterListeners(), this);
         Bukkit.getServer().getPluginManager().registerEvents(new logsListener(this), this);
         Bukkit.getServer().getPluginManager().registerEvents(new CityListeners(), this);
         Bukkit.getServer().getPluginManager().registerEvents(new BankListeners(), this);

@@ -8,35 +8,32 @@ import org.bukkit.Material;
 import org.bukkit.Server;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 import xyz.nyroma.Capitalism.ScoreboardManager;
-import xyz.nyroma.betterItems.BetterArmorManager;
+import xyz.nyroma.betterItems.BetterArmor;
+import xyz.nyroma.betterItems.BetterArmors;
 import xyz.nyroma.towny.City;
 import xyz.nyroma.towny.CityManager;
-import xyz.nyroma.towny.TownyException;
-
-import java.util.Enumeration;
-import java.util.Hashtable;
 
 public class TaskManager {
     private JavaPlugin plugin;
     private Server server;
     private CityManager cm = new CityManager();
 
-    public TaskManager(JavaPlugin plugin, Server server){
+    public TaskManager(JavaPlugin plugin, Server server) {
         this.plugin = plugin;
         this.server = server;
     }
 
-    public void build(){
+    public void build() {
         new BukkitRunnable() {
             @Override
             public void run() {
-                for(Player p : server.getOnlinePlayers()){
+                for (Player p : server.getOnlinePlayers()) {
                     applyEffects(p);
                     checkClaims(p);
                     checkEnemy(p);
@@ -59,57 +56,59 @@ public class TaskManager {
             public void run() {
                 sm.setScoreboard(server);
             }
-        }.runTaskTimer(plugin, 60*20, 60*20);
+        }.runTaskTimer(plugin, 60 * 20, 60 * 20);
 
         new BukkitRunnable() {
             @Override
             public void run() {
                 cm.applyTaxes(server);
             }
-        }.runTaskTimer(plugin, 12*3600*20L, 12*3600*20L);
+        }.runTaskTimer(plugin, 12 * 3600 * 20L, 12 * 3600 * 20L);
 
 
     }
 
-    public void applyEffects(Player p){
-        ItemStack i = p.getInventory().getItemInMainHand();
-        if (i.getType().equals(Material.GOLDEN_AXE) && i.getItemMeta().getEnchants().containsValue(10)) {
-            p.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 100, 2));
-        }
+    public void applyEffects(Player p) {
+            ItemStack is = p.getInventory().getItemInMainHand();
+            if (is.getType().equals(Material.GOLDEN_AXE) && is.hasItemMeta() && is.getItemMeta() != null
+                    && is.getItemMeta().hasEnchants() && is.getItemMeta().getEnchants().size() > 0 && is.getItemMeta().getEnchants().containsValue(10)) {
+                p.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 100, 2));
+            }
 
-
-        Hashtable<ItemStack, PotionEffect> armor = new BetterArmorManager().build();
-        Enumeration<ItemStack> it = armor.keys();
-
-        try {
-            while (it.hasMoreElements()) {
-                ItemStack item = it.nextElement();
-                PlayerInventory inv = p.getInventory();
-                if (hasLore(item)) {
-                    for (ItemStack its : inv.getArmorContents()) {
-                        if (hasLore(its)) {
-                            if (item.getItemMeta().getLore().equals(its.getItemMeta().getLore())) {
-                                p.addPotionEffect(armor.get(item));
+            for (ItemStack item : p.getInventory().getArmorContents()) {
+                if(item != null) {
+                    if (item.hasItemMeta() && item.getItemMeta() != null) {
+                        ItemMeta im = item.getItemMeta();
+                        if (im.hasLore() && im.getLore() != null && im.getLore().size() > 0) {
+                            BetterArmor[] bt = new BetterArmor[]{new BetterArmor(BetterArmors.NIGHT_HELMET),
+                                    new BetterArmor(BetterArmors.WINGED_CHESTPLATE),
+                                    new BetterArmor(BetterArmors.SPEEDY_LEGGINGS),
+                                    new BetterArmor(BetterArmors.JUMPER_BOOTS)};
+                            for (BetterArmor ba : bt) {
+                                for (int i = 1; i <= 5; i++) {
+                                    ItemStack tool = ba.getItemStack(i);
+                                    if (im.getLore().equals(tool.getItemMeta().getLore())) {
+                                        if(i < 5) {
+                                            p.addPotionEffect(ba.getEffect().createEffect(300, i), true);
+                                        } else {
+                                            p.addPotionEffect(ba.getEffect().createEffect(300, (int) (i*1.5)), true);
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
                 }
             }
-        } catch (NullPointerException ee) {
-            System.out.println("Fuck");
-        }
-
-        try {
             ItemStack im = p.getInventory().getItemInOffHand();
-            if(im.getType().equals(Material.FEATHER) && im.getItemMeta().hasEnchants()){
-                p.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_FALLING, 100,5));
+            if (im.getType().equals(Material.FEATHER) && im.hasItemMeta() && im.getItemMeta() != null && im.getItemMeta().hasEnchants()) {
+                p.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_FALLING, 100, 5));
             }
-        } catch(NullPointerException ignored){
-        }
     }
-    public void checkClaims(Player p){
+
+    public void checkClaims(Player p) {
         Location loc = p.getLocation();
-        if(cm.getClaimer(loc).isPresent()){
+        if (cm.getClaimer(loc).isPresent()) {
             City city = cm.getClaimer(loc).get();
             p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.DARK_RED + "- Claim par " + city.getName() + " -"));
         } else {
@@ -117,15 +116,15 @@ public class TaskManager {
         }
     }
 
-    private void checkEnemy(Player p){
-        if(cm.getClaimer(p.getLocation()).isPresent()){
+    private void checkEnemy(Player p) {
+        if (cm.getClaimer(p.getLocation()).isPresent()) {
             City city = cm.getClaimer(p.getLocation()).get();
-            if(cm.getCityOfMember(p).isPresent()){
+            if (cm.getCityOfMember(p).isPresent()) {
                 City ciOfM = cm.getCityOfMember(p).get();
-                if((city.getRelationsManager().getEnemies().contains(ciOfM) || city.getRelationsManager().getEvil()) && !city.getMembersManager().isMember(p.getName())){
-                    p.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 100,5));
-                    p.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 100,5));
-                    p.addPotionEffect(new PotionEffect(PotionEffectType.POISON, 100,5));
+                if ((city.getRelationsManager().getEnemies().contains(ciOfM) || city.getRelationsManager().getEvil()) && !city.getMembersManager().isMember(p.getName())) {
+                    p.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 100, 5));
+                    p.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 100, 5));
+                    p.addPotionEffect(new PotionEffect(PotionEffectType.POISON, 100, 5));
                 }
             }
         }

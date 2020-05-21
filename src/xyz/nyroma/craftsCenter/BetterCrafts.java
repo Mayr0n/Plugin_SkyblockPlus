@@ -8,13 +8,12 @@ import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.inventory.ShapelessRecipe;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
-import xyz.nyroma.main.customItems;
 
 import java.util.Arrays;
 import java.util.List;
 
 public class BetterCrafts {
-    private static JavaPlugin plugin;
+    private JavaPlugin plugin;
 
     public BetterCrafts(JavaPlugin plugin) {
         this.plugin = plugin;
@@ -32,13 +31,6 @@ public class BetterCrafts {
         res.setIngredient('b', Material.REDSTONE);
         res.setIngredient('e', Material.REDSTONE_TORCH);
         res.setIngredient('c', Material.COBBLESTONE);
-
-        ShapedRecipe saver = new ShapedRecipe(CraftsManager.getNamespacedkey(plugin, "saver"), new customItems().getSaver());
-
-        saver.shape(".a.", "cbc", ".c.");
-        saver.setIngredient('a', Material.GOLDEN_APPLE);
-        saver.setIngredient('b', Material.ENDER_PEARL);
-        saver.setIngredient('c', Material.GOLD_INGOT);
 
         ShapedRecipe nametag = new ShapedRecipe(CraftsManager.getNamespacedkey(plugin, "nametag"), new ItemStack(Material.NAME_TAG));
 
@@ -87,20 +79,8 @@ public class BetterCrafts {
         trid.setIngredient('a', Material.DIAMOND);
         trid.setIngredient('b', Material.STICK);
 
-        ShapedRecipe satur = new ShapedRecipe(CraftsManager.getNamespacedkey(plugin, "satur"), getSatur());
-        satur.shape("abc", "def", "ghi");
-        satur.setIngredient('a', Material.COOKED_BEEF);
-        satur.setIngredient('b', Material.COOKED_CHICKEN);
-        satur.setIngredient('c', Material.COOKED_MUTTON);
-        satur.setIngredient('d', Material.COOKED_PORKCHOP);
-        satur.setIngredient('e', Material.GOLDEN_APPLE);
-        satur.setIngredient('f', Material.COOKED_RABBIT);
-        satur.setIngredient('g', Material.BREAD);
-        satur.setIngredient('h', Material.GOLDEN_CARROT);
-        satur.setIngredient('i', Material.PUMPKIN_PIE);
-
         List<ShapedRecipe> recipes = Arrays.asList(
-                coms, res, saver, nametag, beehive, beehive2, myce, sadd, trid, satur,
+                coms, res, nametag, beehive, beehive2, myce, sadd, trid,
                 simpleRecipe(Material.CHARCOAL, new ItemStack(Material.COAL_BLOCK), "coalb"),
                 simpleRecipe(Material.COAL_BLOCK, new ItemStack(Material.DIAMOND), "diamond"),
                 simpleRecipe(Material.FLINT, new ItemStack(Material.COBBLESTONE), "cobble"),
@@ -263,9 +243,21 @@ public class BetterCrafts {
         bld.addIngredient(Material.YELLOW_DYE);
         bld.addIngredient(Material.MAGENTA_DYE);
 
+
+        ShapelessRecipe satur = new ShapelessRecipe(CraftsManager.getNamespacedkey(plugin, "satur"), getSatur());
+        satur.addIngredient(Material.COOKED_BEEF);
+        satur.addIngredient(Material.COOKED_CHICKEN);
+        satur.addIngredient(Material.COOKED_MUTTON);
+        satur.addIngredient(Material.COOKED_PORKCHOP);
+        satur.addIngredient(Material.GOLDEN_APPLE);
+        satur.addIngredient(Material.COOKED_RABBIT);
+        satur.addIngredient(Material.BREAD);
+        satur.addIngredient(Material.GOLDEN_CARROT);
+        satur.addIngredient(Material.PUMPKIN_PIE);
+
         return Arrays.asList(
           c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15, c16, grav, sand, grass, leather, slimeball, l1, l2, l3, l4, cob,
-                w1,w2,w3,w4,w5,w6,w7,w8,w9,w10,w11,w12,w13,w14,w15,fea,sto,bld
+                w1,w2,w3,w4,w5,w6,w7,w8,w9,w10,w11,w12,w13,w14,w15,fea,sto,bld, satur
         );
     }
 
@@ -279,20 +271,20 @@ public class BetterCrafts {
         return it;
     }
 
-    public static ShapedRecipe simpleRecipe(Material material, ItemStack item, String name) {
+    public ShapedRecipe simpleRecipe(Material material, ItemStack item, String name) {
         ShapedRecipe i = new ShapedRecipe(CraftsManager.getNamespacedkey(plugin, name), item);
         i.shape("aaa", "aaa", "aaa");
         i.setIngredient('a', material);
         return i;
     }
-    public static ShapedRecipe circleRecipe(Material m1, Material m2, ItemStack item, String name) {
+    public ShapedRecipe circleRecipe(Material m1, Material m2, ItemStack item, String name) {
         ShapedRecipe i = new ShapedRecipe(CraftsManager.getNamespacedkey(plugin, name), item);
         i.shape("aaa", "aba", "aaa");
         i.setIngredient('a', m1);
         i.setIngredient('b', m2);
         return i;
     }
-    public static ShapedRecipe demiCircleRecipe(Material m1, Material m2, Material m3, ItemStack item, String name) {
+    public ShapedRecipe demiCircleRecipe(Material m1, Material m2, Material m3, ItemStack item, String name) {
         ShapedRecipe i = new ShapedRecipe(CraftsManager.getNamespacedkey(plugin, name), item);
         i.shape("aaa", "aba", "ccc");
         i.setIngredient('a', m1);
@@ -300,7 +292,7 @@ public class BetterCrafts {
         i.setIngredient('b', m3);
         return i;
     }
-    public static ShapedRecipe crossCompleteRecipe(Material m1, Material m2, Material m3, ItemStack item, String name) {
+    public ShapedRecipe crossCompleteRecipe(Material m1, Material m2, Material m3, ItemStack item, String name) {
         ShapedRecipe i = new ShapedRecipe(CraftsManager.getNamespacedkey(plugin, name), item);
         i.shape("aba", "bcb", "aba");
         i.setIngredient('a', m1);
