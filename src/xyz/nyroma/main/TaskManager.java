@@ -2,10 +2,8 @@ package xyz.nyroma.main;
 
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.Server;
+import org.bukkit.*;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -14,10 +12,17 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 import xyz.nyroma.Capitalism.ScoreboardManager;
+import xyz.nyroma.Capitalism.bank.BankCache;
 import xyz.nyroma.betterItems.BetterArmor;
 import xyz.nyroma.betterItems.BetterArmors;
-import xyz.nyroma.towny.City;
-import xyz.nyroma.towny.CityManager;
+import xyz.nyroma.towny.citymanagement.CitiesCache;
+import xyz.nyroma.towny.citymanagement.City;
+import xyz.nyroma.towny.citymanagement.CityManager;
+import xyz.nyroma.towny.enums.RelationStatus;
+
+import java.util.Calendar;
+
+import static xyz.nyroma.main.speedy.getTime;
 
 public class TaskManager {
     private JavaPlugin plugin;
@@ -48,6 +53,31 @@ public class TaskManager {
             @Override
             public void run() {
                 sm.refresh();
+
+                if(getTime().equals("23:59:59") || getTime().equals("11:59:59")){
+                    Bukkit.broadcastMessage(ChatColor.DARK_GREEN + "Lancement de la tournée des taxes !");
+                    for(City city : CitiesCache.getCities()){
+                        switch(cm.applyTaxes(city)){
+                            case PAYED:
+                                sendToAllPlayerInCity(city, ChatColor.GREEN + "Votre ville a été débitée de " + city.getMoneyManager().getTaxes() + " Nyr.");
+                                break;
+                            case BROKEN:
+                                sendToAllPlayerInCity(city, ChatColor.RED + "Votre ville n'a pas pu être débitée de " + city.getMoneyManager().getTaxes() + " Nyr, elle est passée en faillite. Vous avez 12h" +
+                                        " pour amasser assez d'argent afin de payer les prochaines taxes.");
+                                break;
+                            case REMOVED:
+                                sendToAllPlayerInCity(city, ChatColor.DARK_RED + "Votre ville était en faillite, et vous n'avez pas pu payer la tournée des taxes, donc votre ville a été supprimée.");
+                        }
+                    }
+                    Bukkit.broadcastMessage(ChatColor.GREEN + "Fin de la tournée des taxes !");
+                }
+
+                if(getTime().split(":")[1].equals("00") && getTime().split(":")[2].equals("00")){
+                    Bukkit.broadcastMessage(ChatColor.GREEN + "C'est ma tournée ! 5 Nyromarks pour tous les joueurs connectés !");
+                    for(Player p : Bukkit.getServer().getOnlinePlayers()){
+                        BankCache.get(p.getName()).add(5);
+                    }
+                }
             }
         }.runTaskTimer(plugin, 20, 20);
 
@@ -61,11 +91,19 @@ public class TaskManager {
         new BukkitRunnable() {
             @Override
             public void run() {
-                cm.applyTaxes(server);
+                CitiesCache.serializeAll();
             }
-        }.runTaskTimer(plugin, 12 * 3600 * 20L, 12 * 3600 * 20L);
+        }.runTaskTimer(plugin, 600*20L, 600*20L);
 
 
+    }
+
+    public void sendToAllPlayerInCity(City city, String txt){
+        for(String pseudo : city.getMembersManager().getMembers()){
+            if(speedy.getPlayerByName(pseudo).isPresent()){
+                speedy.getPlayerByName(pseudo).get().sendMessage(txt);
+            }
+        }
     }
 
     public void applyEffects(Player p) {
@@ -83,13 +121,15 @@ public class TaskManager {
                             BetterArmor[] bt = new BetterArmor[]{new BetterArmor(BetterArmors.NIGHT_HELMET),
                                     new BetterArmor(BetterArmors.WINGED_CHESTPLATE),
                                     new BetterArmor(BetterArmors.SPEEDY_LEGGINGS),
-                                    new BetterArmor(BetterArmors.JUMPER_BOOTS)};
+                                    new BetterArmor(BetterArmors.JUMPER_BOOTS),
+                                    new BetterArmor(BetterArmors.HEROES_CHESTPLATE)
+                            };
                             for (BetterArmor ba : bt) {
                                 for (int i = 1; i <= 5; i++) {
                                     ItemStack tool = ba.getItemStack(i);
                                     if (im.getLore().equals(tool.getItemMeta().getLore())) {
                                         if(i < 5) {
-                                            p.addPotionEffect(ba.getEffect().createEffect(300, i), true);
+                                            p.addPotionEffect(ba.getEffect().createEffect(300, i-1), true);
                                         } else {
                                             p.addPotionEffect(ba.getEffect().createEffect(300, (int) (i*1.5)), true);
                                         }
@@ -108,8 +148,8 @@ public class TaskManager {
 
     public void checkClaims(Player p) {
         Location loc = p.getLocation();
-        if (cm.getClaimer(loc).isPresent()) {
-            City city = cm.getClaimer(loc).get();
+        if (speedy.getClaimer(loc).isPresent()) {
+            City city = speedy.getClaimer(loc).get();
             p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.DARK_RED + "- Claim par " + city.getName() + " -"));
         } else {
             p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.DARK_GREEN + "- Territoire libre -"));
@@ -117,29 +157,14 @@ public class TaskManager {
     }
 
     private void checkEnemy(Player p) {
-        if (cm.getClaimer(p.getLocation()).isPresent()) {
-            City city = cm.getClaimer(p.getLocation()).get();
-            if (cm.getCityOfMember(p).isPresent()) {
-                City ciOfM = cm.getCityOfMember(p).get();
-                if ((city.getRelationsManager().getEnemies().contains(ciOfM) || city.getRelationsManager().getEvil()) && !city.getMembersManager().isMember(p.getName())) {
-                    p.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 100, 5));
-                    p.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 100, 5));
-                    p.addPotionEffect(new PotionEffect(PotionEffectType.POISON, 100, 5));
-                }
+        Location loc = p.getLocation();
+        if (speedy.getClaimer(loc).isPresent()) {
+            City city = speedy.getClaimer(loc).get();
+            if(city.getRelationStatus(p.getName()) == RelationStatus.ENEMY){
+                p.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 100, 5));
+                p.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 100, 5));
+                p.addPotionEffect(new PotionEffect(PotionEffectType.POISON, 100, 5));
             }
         }
     }
-
-    private boolean hasLore(ItemStack item) {
-        try {
-            if (item.hasItemMeta()) {
-                return item.getItemMeta().hasLore();
-            } else {
-                return false;
-            }
-        } catch (NullPointerException e) {
-            return false;
-        }
-    }
-
 }

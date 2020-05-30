@@ -29,26 +29,26 @@ public class BankCommands implements CommandExecutor {
                     switch (args[0]) {
                         case "send":
                             if(args.length == 3){
-                                try {
-                                    Player toSend = speedy.getPlayerByName(p.getServer(), args[1]);
-                                    Bank b = BankCache.get(toSend.getName());
+                                    if(speedy.getPlayerByName(args[1]).isPresent()){
+                                        Player toSend = speedy.getPlayerByName(args[1]).get();
+                                        Bank b = BankCache.get(toSend.getName());
 
-                                    try {
-                                        int amount = Integer.parseInt(args[2]);
-                                        if(bank.remove(amount)){
-                                            p.sendMessage(ChatColor.GREEN + Integer.toString(amount) + " Nyr ont été retirés de votre compte.");
-                                            b.add(amount);
-                                            toSend.sendMessage(ChatColor.GREEN + "Vous avez reçu " + amount + " Nyr de la part de " + p.getName() + " !");
-                                            p.sendMessage(ChatColor.GREEN + toSend.getName() + " a bien reçu les " + amount + " Nyr !");
-                                        } else {
-                                            p.sendMessage(ChatColor.RED + "Vous n'avez pas le montant nécessaire dans votre banque !");
+                                        try {
+                                            int amount = Integer.parseInt(args[2]);
+                                            if(bank.remove(amount)){
+                                                p.sendMessage(ChatColor.GREEN + Integer.toString(amount) + " Nyr ont été retirés de votre compte.");
+                                                b.add(amount);
+                                                toSend.sendMessage(ChatColor.GREEN + "Vous avez reçu " + amount + " Nyr de la part de " + p.getName() + " !");
+                                                p.sendMessage(ChatColor.GREEN + toSend.getName() + " a bien reçu les " + amount + " Nyr !");
+                                            } else {
+                                                p.sendMessage(ChatColor.RED + "Vous n'avez pas le montant nécessaire dans votre banque !");
+                                            }
+                                        } catch(NumberFormatException e){
+                                            p.sendMessage(ChatColor.RED + "Arguments invalides ! Syntaxe : /bank send <pseudo> <montant>");
                                         }
-                                    } catch(NumberFormatException e){
-                                        p.sendMessage(ChatColor.RED + "Arguments invalides ! Syntaxe : /bank send <pseudo> <montant>");
+                                    } else {
+                                        p.sendMessage(ChatColor.RED + "Arguments invalides ! Ce joueur n'est pas connecté.");
                                     }
-                                } catch (NotFoundException e) {
-                                    p.sendMessage(ChatColor.RED + "Arguments invalides ! Ce joueur n'est pas connecté.");
-                                }
                             } else {
                                 p.sendMessage(ChatColor.RED + "Arguments invalides ! Syntaxe : /bank send <pseudo> <montant>");
                             }

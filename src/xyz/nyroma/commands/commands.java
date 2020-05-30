@@ -1,13 +1,11 @@
 package xyz.nyroma.commands;
 
-import xyz.nyroma.tpPack.tpEtCooldowns;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 
 import static xyz.nyroma.main.speedy.sendErrorMessage;
 
@@ -32,39 +30,6 @@ public class commands {
             sendErrorMessage(p,"Il faut spécifier un nom ! Syntaxe : /invsee <nomJoueur>");
             return false;
         }
-    }
-    public boolean tpaProcess(Player p, String[] args, tpEtCooldowns tpc){
-        if(args[0] == null){
-            sendErrorMessage(p, "A qui veut-tu te téléporter ? Syntaxe : /tpa <nomJoueur>");
-            return false;
-        } else {
-            Player d = null;
-            for(Player play : p.getServer().getOnlinePlayers()){
-                if(play.getName().equals(args[0])){
-                    d = play;
-                }
-            }
-            if(d == null){
-                sendErrorMessage(p, "Vous devez être dans le même serveur, et tous les deux connectés !");
-                return false;
-            } else {
-                final Player df = d;
-                new BukkitRunnable() {
-                    @Override
-                    public void run() {
-                        tpc.tpa(df,p);
-                    }
-                }.run();
-                System.out.println("Tpa lancé");
-                return true;
-            }
-        }
-    }
-    public boolean resetCooldowns(Player p, tpEtCooldowns tpc){
-        ArrayList<Player> players = new ArrayList<>(p.getServer().getOnlinePlayers());
-        tpc.resetAll(players);
-        p.sendMessage(ChatColor.RED + "Les cooldowns ont été resets.");
-        return true;
     }
     public boolean punish(Player p, String[] args, String type){
         if(args[0] != null && !args[0].equals("Imperayser") && isStaff(p)){

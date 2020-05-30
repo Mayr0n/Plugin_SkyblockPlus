@@ -4,5 +4,6 @@ public enum BetterArmors {
     NIGHT_HELMET,
     WINGED_CHESTPLATE,
     SPEEDY_LEGGINGS,
-    JUMPER_BOOTS
+    JUMPER_BOOTS,
+    HEROES_CHESTPLATE
 }

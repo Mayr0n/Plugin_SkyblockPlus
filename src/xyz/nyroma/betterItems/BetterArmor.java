@@ -54,6 +54,14 @@ public class BetterArmor {
                 this.lowTier = ChatColor.GREEN;
                 this.highTier = ChatColor.DARK_GREEN;
                 break;
+            case HEROES_CHESTPLATE:
+                this.name = ChatColor.GREEN + "Heroes' chestplate";
+                this.type = "CHESTPLATE";
+                this.effet = "permet un effet \"Héros du village\" infini.";
+                this.effect = PotionEffectType.HERO_OF_THE_VILLAGE;
+                this.lowTier = ChatColor.GREEN;
+                this.highTier = ChatColor.DARK_GREEN;
+                break;
         }
     }
 

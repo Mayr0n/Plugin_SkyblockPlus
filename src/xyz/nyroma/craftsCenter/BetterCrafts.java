@@ -90,18 +90,20 @@ public class BetterCrafts {
                 circleRecipe(Material.RED_MUSHROOM, Material.WHEAT_SEEDS, new ItemStack(Material.NETHER_WART), "wart"),
                 circleRecipe(Material.ROTTEN_FLESH, Material.WHEAT_SEEDS, new ItemStack(Material.BROWN_MUSHROOM), "gmush"),
                 circleRecipe(Material.STONE, Material.RED_DYE, new ItemStack(Material.REDSTONE, 8), "redstone"),
-                circleRecipe(Material.DIAMOND, Material.DIAMOND_HELMET, getSuperAmor(Material.DIAMOND_HELMET, "H"), "shelmet"),
-                circleRecipe(Material.DIAMOND, Material.DIAMOND_CHESTPLATE, getSuperAmor(Material.DIAMOND_CHESTPLATE, "C"), "schestplate"),
-                circleRecipe(Material.DIAMOND, Material.DIAMOND_LEGGINGS, getSuperAmor(Material.DIAMOND_LEGGINGS, "L"), "sleggings"),
-                circleRecipe(Material.DIAMOND, Material.DIAMOND_BOOTS, getSuperAmor(Material.DIAMOND_BOOTS, "B"), "sboots"),
                 circleRecipe(Material.IRON_BARS, Material.NETHER_STAR, new ItemStack(Material.SPAWNER), "spawner"),
                 circleRecipe(Material.ROTTEN_FLESH, Material.SHEARS, new ItemStack(Material.LEATHER), "leat"),
                 circleRecipe(Material.WATER_BUCKET, Material.MAGMA_BLOCK, new ItemStack(Material.SLIME_BLOCK), "slimeb"),
                 circleRecipe(Material.DIRT, Material.FEATHER, getAngelicDirt(), "angelicdirt"),
+                circleRecipe(Material.DIAMOND, Material.APPLE, getDApple(), "dapple"),
+                circleRecipe(Material.OBSIDIAN, Material.APPLE, getOApple(), "oapple"),
+                circleRecipe(Material.GOLD_BLOCK, Material.APPLE, new ItemStack(Material.ENCHANTED_GOLDEN_APPLE), "notchapple"),
                 crossCompleteRecipe(Material.ROTTEN_FLESH, Material.RED_DYE, Material.WHEAT_SEEDS, new ItemStack(Material.RED_MUSHROOM), "rmush"),
                 crossCompleteRecipe(Material.SUGAR, Material.JUNGLE_LOG, Material.VINE, new ItemStack(Material.COCOA_BEANS, 4), "cacao"),
                 crossCompleteRecipe(Material.GREEN_DYE, Material.STRING, Material.ENDER_PEARL, new ItemStack(Material.SLIME_BALL), "slball"),
                 crossCompleteRecipe(Material.COBBLESTONE, Material.GUNPOWDER, Material.WATER_BUCKET, new ItemStack(Material.CLAY, 4), "clayc"),
+                crossCompleteRecipe(Material.STONE_AXE, Material.EMERALD_BLOCK, Material.APPLE, getOmen(1), "omen1"),
+                crossCompleteRecipe(Material.GOLDEN_AXE, Material.EMERALD_BLOCK, Material.GOLDEN_APPLE, getOmen(2), "omen2"),
+                crossCompleteRecipe(Material.IRON_AXE, Material.EMERALD_BLOCK, Material.GOLDEN_APPLE, getOmen(3), "omen3"),
                 circleRecipe(Material.GREEN_DYE, Material.DIAMOND, new ItemStack(Material.EMERALD), "emer"),
                 crossCompleteRecipe(Material.STRING, Material.GOLD_INGOT, Material.FEATHER, getSlowFeather(), "slowf"),
                 demiCircleRecipe(Material.PHANTOM_MEMBRANE, Material.TNT, Material.IRON_INGOT, getPropulser(1), "propul1"),
@@ -307,6 +309,41 @@ public class BetterCrafts {
         im.setDisplayName("Festin");
         im.addEnchant(Enchantment.DURABILITY, 10,true);
         im.setLore(Arrays.asList("De quoi n'avoir jamais faim !"));
+        it.setItemMeta(im);
+        return it;
+    }
+
+    public static ItemStack getDApple(){
+        ItemStack it = new ItemStack(Material.APPLE);
+        ItemMeta im = it.getItemMeta();
+        im.setDisplayName(ChatColor.AQUA + "Diamond Apple");
+        im.addEnchant(Enchantment.DURABILITY, 3,true);
+        im.setLore(Arrays.asList(ChatColor.GREEN + "Meilleure qu'une pomme d'or !"));
+        it.setItemMeta(im);
+        return it;
+    }
+
+    public static ItemStack getOApple(){
+        ItemStack it = new ItemStack(Material.APPLE);
+        ItemMeta im = it.getItemMeta();
+        im.setDisplayName(ChatColor.BLACK + "Obsidian Apple");
+        im.addEnchant(Enchantment.DURABILITY, 5,true);
+        im.setLore(Arrays.asList(ChatColor.GREEN + "Si vous prenez des dégâts avec ça y a un problème..."));
+        it.setItemMeta(im);
+        return it;
+    }
+
+    public static ItemStack getOmen(int level){
+        ItemStack it = new ItemStack(Material.APPLE);
+        ItemMeta im = it.getItemMeta();
+        StringBuilder sb = new StringBuilder();
+        sb.append(ChatColor.DARK_GREEN + "Good apple").append(" :");
+        for(int i = 0 ; i < level ; i++){
+            sb.append(")");
+        }
+        im.setDisplayName(sb.toString());
+        im.addEnchant(Enchantment.VANISHING_CURSE, level,true);
+        im.setLore(Arrays.asList(ChatColor.GREEN + "Une très bonne pomme à croquer !"));
         it.setItemMeta(im);
         return it;
     }

@@ -102,18 +102,6 @@ public class BankCache {
                 saveGraph();
             }
         }.runTaskTimer(plugin, 10 * 60 * 20L, 10 * 60 * 20L);
-
-        System.out.println("Démmarrage de la récompense d'activité...");
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                Bukkit.broadcastMessage(ChatColor.AQUA + "Grâce à leur activité, tous les joueurs du serveur reçoivent 5 Nyr !");
-                for(Player p : Bukkit.getServer().getOnlinePlayers()){
-                    get(p.getName()).add(5);
-                }
-            }
-        }.runTaskTimer(plugin, 3600 * 20L, 3600 * 20L);
-        System.out.println("Récompense d'activité activée !");
     }
     public static boolean add(Bank bank){
         return banks.add(bank);

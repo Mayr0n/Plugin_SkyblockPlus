@@ -2,13 +2,12 @@ package xyz.nyroma.Capitalism;
 
 import org.bukkit.*;
 import org.bukkit.entity.Player;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scoreboard.*;
 import xyz.nyroma.Capitalism.bank.Bank;
 import xyz.nyroma.Capitalism.bank.BankCache;
+import xyz.nyroma.towny.citymanagement.CitiesCache;
+import xyz.nyroma.towny.citymanagement.City;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.List;
@@ -18,9 +17,11 @@ public class ScoreboardManager {
     private Objective money;
     private Objective pourcentage;
     private Objective deaths;
+    private Objective cities;
     private Scoreboard moneyScoreboard;
     private Scoreboard miscScoreboard;
     private Scoreboard deathScoreboard;
+    private Scoreboard cityScoreboard;
     private Hashtable<Scoreboard, Objective> test = new Hashtable<>();
     public static Scoreboard current;
 
@@ -36,31 +37,24 @@ public class ScoreboardManager {
         this.money = moneyScoreboard.registerNewObjective("Money", "dummy", ChatColor.DARK_RED + "Money");
         this.money.setDisplaySlot(DisplaySlot.SIDEBAR);
 
-        Objective o = moneyScoreboard.registerNewObjective("health", "health", "health");
-        o.setDisplaySlot(DisplaySlot.PLAYER_LIST);
-        o.setRenderType(RenderType.HEARTS);
-
         //---------------------------------
         miscScoreboard = manager.getNewScoreboard();
 
         this.pourcentage = miscScoreboard.registerNewObjective("Pourcentages", "dummy", ChatColor.DARK_RED + "Pour% richesses");
         this.pourcentage.setDisplaySlot(DisplaySlot.SIDEBAR);
 
-        o = miscScoreboard.registerNewObjective("health", "health", "health");
-        o.setDisplaySlot(DisplaySlot.PLAYER_LIST);
-        o.setRenderType(RenderType.HEARTS);
-
         //------------------------------
         this.deathScoreboard = manager.getNewScoreboard();
 
-        this.deaths = deathScoreboard.registerNewObjective("IL_EST_MORT_LOL", "dummy", ChatColor.DARK_RED + "IL EST MORT LOL");
+        this.deaths = deathScoreboard.registerNewObjective("Temps (en h)", "dummy", ChatColor.DARK_RED + "Temps (en h)");
         this.deaths.setDisplaySlot(DisplaySlot.SIDEBAR);
 
-        o = deathScoreboard.registerNewObjective("health", "health", "health");
-        o.setDisplaySlot(DisplaySlot.PLAYER_LIST);
-        o.setRenderType(RenderType.HEARTS);
-
         //------------------------------
+
+        this.cityScoreboard = manager.getNewScoreboard();
+
+        this.cities = cityScoreboard.registerNewObjective("Cities' money", "dummy", "Cities' money");
+        this.cities.setDisplaySlot(DisplaySlot.SIDEBAR);
 
         current = this.moneyScoreboard;
         setScoreboard(this.server);
@@ -69,24 +63,29 @@ public class ScoreboardManager {
     public void refresh(){
         int total = 0;
         for(Bank bank : BankCache.getBanks()){
-            Score score = this.money.getScore(net.md_5.bungee.api.ChatColor.BLUE + bank.getPlayer());
+            Score score = this.money.getScore(ChatColor.BLUE + bank.getPlayer());
             score.setScore((int) bank.getAmount());
             total += bank.getAmount();
         }
         for(Bank bank : BankCache.getBanks()){
-            Score score = this.pourcentage.getScore(net.md_5.bungee.api.ChatColor.BLUE + bank.getPlayer());
+            Score score = this.pourcentage.getScore(ChatColor.BLUE + bank.getPlayer());
             score.setScore((int) bank.getAmount()*100/total);
         }
+        for(City city : CitiesCache.getCities()){
+            Score score = this.cities.getScore(ChatColor.DARK_AQUA + city.getName());
+            score.setScore((int) city.getMoneyManager().getAmount());
+        }
+        this.pourcentage.getScore(ChatColor.RED + "1% des richesses").setScore(total/100);
         for(OfflinePlayer p : Bukkit.getServer().getWhitelistedPlayers()){
             Score score = this.deaths.getScore(ChatColor.DARK_AQUA + p.getName());
             if(p.getPlayer() != null){
-                score.setScore(p.getPlayer().getStatistic(Statistic.DEATHS));
+                score.setScore((p.getPlayer().getStatistic(Statistic.PLAY_ONE_MINUTE)/20)/3600);
             }
         }
     }
 
     public void setScoreboard(Server server){
-        List<Scoreboard> sc = Arrays.asList(this.moneyScoreboard, this.miscScoreboard, this.deathScoreboard);
+        List<Scoreboard> sc = Arrays.asList(this.moneyScoreboard, this.miscScoreboard, this.deathScoreboard, this.cityScoreboard);
         for(Player p : server.getOnlinePlayers()) {
             int ind = sc.indexOf(p.getScoreboard());
             System.out.println("Index : " + ind);
@@ -95,6 +94,13 @@ public class ScoreboardManager {
             } else {
                 ind++;
             }
+
+            if(sc.get(ind).getObjective(DisplaySlot.PLAYER_LIST) == null){
+                Objective o = sc.get(ind).registerNewObjective("health", "dummy", "health");
+                o.setDisplaySlot(DisplaySlot.PLAYER_LIST);
+                o.setRenderType(RenderType.HEARTS);
+            }
+
             p.setScoreboard(sc.get(ind));
             current = sc.get(ind);
         }

@@ -6,6 +6,9 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Firework;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.meta.FireworkMeta;
+import org.bukkit.scoreboard.Team;
+import xyz.nyroma.towny.citymanagement.City;
+import xyz.nyroma.towny.citymanagement.CityManager;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -27,36 +30,21 @@ public class speedy {
             file.mkdir();
         }
     }
-    public static Player getPlayerByName(Server server, String name) throws NotFoundException {
-        for(Player p : server.getOnlinePlayers()){
+    public static Optional<Player> getPlayerByName(String name) {
+        for(Player p : Bukkit.getServer().getOnlinePlayers()){
             if(p.getName().equals(name)){
-                return p;
+                return Optional.of(p);
             }
         }
-        throw new NotFoundException("Joueur non trouvé.");
+        return Optional.empty();
     }
-    public static ArrayList<String> getAllLines(BufferedReader reader) {
-        Hashtable<String, String> aL = new Hashtable<>();
-        ArrayList<String> allLines = new ArrayList<>();
-        try {
-            String line = reader.readLine();
-            int counter = 1;
-            if (line != null) {
-                aL.put(Integer.toString(counter), line);
-            }
-            while ((line = reader.readLine()) != null) {
-                counter++;
-                aL.put(Integer.toString(counter), line);
-            }
-            Enumeration<String> e = aL.elements();
-            while (e.hasMoreElements()) {
-                allLines.add(e.nextElement());
-            }
-            reader.close();
-        } catch (IOException e) {
-            e.printStackTrace();
+    public static Optional<City> getClaimer(Location loc){
+        CityManager cm = new CityManager();
+        if (cm.getClaimer(loc.getWorld().getName(), loc.getChunk().getX(), loc.getChunk().getZ()).isPresent()) {
+            return cm.getClaimer(loc.getWorld().getName(), loc.getChunk().getX(), loc.getChunk().getZ());
+        } else {
+            return Optional.empty();
         }
-        return allLines;
     }
     public static void sendErrorMessage(Player p, String message) {
         p.sendMessage(ChatColor.RED + message);
@@ -96,17 +84,6 @@ public class speedy {
             e.printStackTrace();
         }
     }
-    public static float[] getCleanCoos(Location loc){
-        return new float[]{(float) loc.getX(), (float) loc.getY(), (float) loc.getZ()};
-    }
-    public static void spawnFirework(Entity e){
-        Firework fw = (Firework) e.getWorld().spawnEntity(e.getLocation(), EntityType.FIREWORK);
-        FireworkMeta fwm = fw.getFireworkMeta();
-        fwm.setPower(5);
-        fwm.addEffect(FireworkEffect.builder().trail(true).withColor(Color.GREEN).flicker(true).build());
-        fw.setFireworkMeta(fwm);
-        fw.detonate();
-    }
     public static String getDate(String type){
         String date = new GregorianCalendar().getTime().toString();
         switch(type){
@@ -121,5 +98,30 @@ public class speedy {
                 break;
         }
         return date;
+    }
+    public static String getTime() {
+        Calendar calendar = Calendar.getInstance();
+        int hours = calendar.get(Calendar.HOUR_OF_DAY) + 6;
+        int minutes = calendar.get(Calendar.MINUTE);
+        int seconds = calendar.get(Calendar.SECOND);
+        String min;
+        String h;
+        String s;
+        if (hours >= 24) {
+            h = "0" + (hours - 24);
+        } else {
+            h = String.valueOf(hours);
+        }
+        if (minutes < 10) {
+            min = "0" + minutes;
+        } else {
+            min = String.valueOf(minutes);
+        }
+        if (seconds < 10) {
+            s = "0" + seconds;
+        } else {
+            s = String.valueOf(seconds);
+        }
+        return h + ":" + min + ":" + s;
     }
 }

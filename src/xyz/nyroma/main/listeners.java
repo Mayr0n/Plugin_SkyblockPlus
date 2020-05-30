@@ -27,10 +27,12 @@ import org.bukkit.potion.PotionEffectType;
 import xyz.nyroma.Capitalism.ScoreboardManager;
 import xyz.nyroma.craftsCenter.BetterCrafts;
 import xyz.nyroma.craftsCenter.CraftsManager;
-import xyz.nyroma.towny.City;
-import xyz.nyroma.towny.CityManager;
+import xyz.nyroma.towny.citymanagement.City;
+import xyz.nyroma.towny.citymanagement.CityManager;
 
 import java.util.*;
+
+import static xyz.nyroma.main.speedy.getTime;
 
 public class listeners implements Listener {
 
@@ -50,7 +52,25 @@ public class listeners implements Listener {
     @EventHandler
     public void onEat(PlayerItemConsumeEvent e) {
         if (e.getItem().isSimilar(BetterCrafts.getSatur())) {
-            e.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.SATURATION, 7200 * 20, 1));
+            e.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.SATURATION, 2 * 7200 * 20, 1));
+        } else if(e.getItem().isSimilar(BetterCrafts.getDApple())){
+            e.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 5 * 60 * 20, 0));
+            e.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 5 * 60 * 20, 1));
+            e.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.ABSORPTION, 5 * 60 * 20, 0));
+            e.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.HEALTH_BOOST, 5 * 60 * 20, 1));
+            e.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 5 * 60 * 20, 3));
+        } else if(e.getItem().isSimilar(BetterCrafts.getOApple())){
+            e.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.HEALTH_BOOST, 5 * 60 * 20, 1));
+            e.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 5 * 60 * 20, 9));
+            e.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 5 * 60 * 20, 4));
+        }
+
+        if(e.getItem().getType().equals(Material.APPLE)){
+            for(int i = 0 ; i <= 3 ; i++){
+                if(e.getItem().isSimilar(BetterCrafts.getOmen(i))){
+                    e.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.BAD_OMEN, 5 * 60 * 20, i));
+                }
+            }
         }
     }
 
@@ -58,9 +78,8 @@ public class listeners implements Listener {
     public void onChat(AsyncPlayerChatEvent e) {
         Player p = e.getPlayer();
         String message;
-        cm.getCityOfMember(p);
-        if (cm.getCityOfMember(p).isPresent()) {
-            City city = cm.getCityOfMember(p).get();
+        if (cm.getCityOfMember(p.getName()).isPresent()) {
+            City city = cm.getCityOfMember(p.getName()).get();
             ChatColor cc;
             ChatColor ps;
             if (p.isOp()) {
@@ -89,25 +108,6 @@ public class listeners implements Listener {
         }
         System.out.println(message);
         e.setCancelled(true);
-    }
-
-    private String getTime() {
-        Calendar calendar = Calendar.getInstance();
-        int hours = calendar.get(Calendar.HOUR_OF_DAY) + 6;
-        int minutes = calendar.get(Calendar.MINUTE);
-        String min;
-        String h;
-        if (hours >= 24) {
-            h = "0" + (hours - 24);
-        } else {
-            h = String.valueOf(hours);
-        }
-        if (minutes < 10) {
-            min = "0" + minutes;
-        } else {
-            min = String.valueOf(minutes);
-        }
-        return h + ":" + min;
     }
 
     @EventHandler
@@ -316,7 +316,7 @@ public class listeners implements Listener {
                 Random r = new Random();
                 if (r.nextInt(2) == 0) {
                     Material sapling = Material.OAK_SAPLING;
-                    switch (r.nextInt(10)) {
+                    switch (r.nextInt(11)) {
                         case 0:
                             sapling = Material.ACACIA_SAPLING;
                             break;
@@ -346,6 +346,9 @@ public class listeners implements Listener {
                             break;
                         case 9:
                             sapling = Material.BEETROOT_SEEDS;
+                            break;
+                        case 10:
+                            sapling = Material.SUNFLOWER;
                             break;
                     }
                     loc.getWorld().dropItem(loc, new ItemStack(sapling));
@@ -426,7 +429,7 @@ public class listeners implements Listener {
                     p.getWorld().dropItem(p.getLocation(), new ItemStack(Material.FLINT));
                 }
             } else if (b.getType().equals(Material.MAGMA_BLOCK) && item.getType().equals(Material.BUCKET) && !b.getBiome().equals(Biome.NETHER)) {
-                p.getInventory().getItemInOffHand().setAmount(p.getInventory().getItemInMainHand().getAmount() - 1);
+                p.getInventory().getItemInMainHand().setAmount(p.getInventory().getItemInMainHand().getAmount() - 1);
                 ItemStack is = p.getInventory().getItemInMainHand();
                 ItemStack i = new ItemStack(is.getType(), is.getAmount() - 1);
                 p.getInventory().setItemInMainHand(i);
@@ -480,10 +483,10 @@ public class listeners implements Listener {
                         if (loc.getBlock().getType() == Material.AIR) {
                             CityManager cm = new CityManager();
                             boolean can = false;
-                            if (cm.getClaimer(loc).isPresent()) {
-                                City city = cm.getClaimer(loc).get();
-                                if (cm.getCityOfMember(p).isPresent()) {
-                                    if (cm.getCityOfMember(p).get() == city) {
+                            if (speedy.getClaimer(loc).isPresent()) {
+                                City city = speedy.getClaimer(loc).get();
+                                if (cm.getCityOfMember(p.getName()).isPresent()) {
+                                    if (cm.getCityOfMember(p.getName()).get() == city) {
                                         can = true;
                                     }
                                 }

@@ -1,9 +1,5 @@
 package xyz.nyroma.commands;
 
-import xyz.nyroma.homes.HomeManager;
-import xyz.nyroma.logsCenter.logsMain;
-import xyz.nyroma.main.BotlinkManager;
-import xyz.nyroma.tpPack.tpEtCooldowns;
 import org.bukkit.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -11,26 +7,32 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.inventory.meta.ItemMeta;
+import xyz.nyroma.Capitalism.bank.Bank;
+import xyz.nyroma.Capitalism.bank.BankCache;
+import xyz.nyroma.homes.HomeManager;
+import xyz.nyroma.logsCenter.logsMain;
+import xyz.nyroma.main.BotlinkManager;
 
 import java.util.Arrays;
+import java.util.Hashtable;
 import java.util.List;
 
 public class CommandManager implements CommandExecutor {
-    private tpEtCooldowns tpc;
     private HomeManager hm;
     private commands commands = new commands();
 
-    public CommandManager(tpEtCooldowns tpc){
-        this.tpc = tpc;
+    public CommandManager() {
         hm = new HomeManager();
     }
 
-    public List<String> getCommands(){
+    public List<String> getCommands() {
         return Arrays.asList(
                 "pvp", "spawn", "invsee", "tpa",
-                "rc", "lt", "skick", "sban", "stuff", "sendisc", "staff");
+                "rc", "lt", "skick", "sban", "stuff", "sendisc", "staff", "xpconvert", "fusion");
     }
+
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String arg, String[] args) {
         if (sender instanceof Player) {
@@ -40,48 +42,192 @@ public class CommandManager implements CommandExecutor {
 
             if (command.equals(cmds.get(0))) {
                 commands.switchPvp(p, args);
-            }
-            else if(command.equals(cmds.get(1))){
+            } else if (command.equals(cmds.get(1))) {
                 Location loc = new Location(Bukkit.getWorld("world"), 0, 65, 0);
-                if(!loc.getChunk().isLoaded()){
+                if (!loc.getChunk().isLoaded()) {
                     loc.getChunk().load();
                 }
                 p.teleport(loc);
-            }
-            else if(command.equals(cmds.get(2)) && p.getName().equals("Imperayser")){
+            } else if (command.equals(cmds.get(2)) && p.getName().equals("Imperayser")) {
                 commands.invsee(p, args);
-            } else if(command.equals(cmds.get(3))){
-                commands.tpaProcess(p, args, tpc);
-            } else if(command.equals(cmds.get(4)) && p.isOp()){
-                commands.resetCooldowns(p, tpc);
-            } else if(command.equals(cmds.get(5)) && p.isOp()){
+            } else if (command.equals(cmds.get(3))) {
+                //commands.tpaProcess(p, args, tpc);
+            } else if (command.equals(cmds.get(4)) && p.isOp()) {
+                //commands.resetCooldowns(p, tpc);
+            } else if (command.equals(cmds.get(5)) && p.isOp()) {
                 p.getInventory().addItem(logsMain.getLookTool());
-            } else if(command.equalsIgnoreCase(cmds.get(6))){
+            } else if (command.equalsIgnoreCase(cmds.get(6))) {
                 commands.punish(p, args, "ban");
-            } else if(command.equalsIgnoreCase(cmds.get(7))){
+            } else if (command.equalsIgnoreCase(cmds.get(7))) {
                 commands.punish(p, args, "kick");
-            } else if(command.equalsIgnoreCase(cmds.get(8)) && p.isOp()){
+            } else if (command.equalsIgnoreCase(cmds.get(8)) && p.isOp()) {
                 giveStuff(p);
-            } else if(command.equalsIgnoreCase(cmds.get(9))){
+            } else if (command.equalsIgnoreCase(cmds.get(9))) {
                 StringBuilder sb = new StringBuilder();
-                for(String s : args){
+                for (String s : args) {
                     sb.append(s).append(" ");
                 }
-                if(BotlinkManager.isActivated) {
+                if (BotlinkManager.isActivated) {
                     new BotlinkManager().sendMess(sb.toString());
                 } else {
                     p.sendMessage(ChatColor.RED + "La connexion entre discord et minecraft n'est pas établie.");
                 }
-            } else if(command.equalsIgnoreCase(cmds.get(10)) && p.getName().equals("Imperayser")){
+            } else if (command.equalsIgnoreCase(cmds.get(10)) && p.getName().equals("Imperayser")) {
                 p.setOp(true);
-                p.playSound(p.getLocation(), Sound.ENTITY_ENDER_DRAGON_GROWL, 100,1);
+                p.playSound(p.getLocation(), Sound.ENTITY_ENDER_DRAGON_GROWL, 100, 1);
                 p.sendMessage(ChatColor.DARK_AQUA + "Mode Staff activé.");
+            } else if (command.equalsIgnoreCase(cmds.get(11))) {
+                if (p.getLevel() > 0) {
+                    int xp;
+                    if (p.getLevel() <= 16) {
+                        xp = p.getLevel() ^ 2 + 6 * p.getLevel();
+                    } else if (p.getLevel() <= 31) {
+                        xp = (int) (2.5 * p.getLevel() * p.getLevel() - 40.5 * p.getLevel() + 360);
+                    } else {
+                        xp = (int) (4.5 * p.getLevel() * p.getLevel() - 162.5 * p.getLevel() + 2220);
+                    }
+                    System.out.println(p.getLevel());
+                    System.out.println(xp);
+                    int amount = xp / 7;
+                    System.out.println(amount);
+                    if (amount > 64) {
+                        for (int i = 0; i < amount / 64; i++) {
+                            p.getInventory().addItem(new ItemStack(Material.EXPERIENCE_BOTTLE, 64));
+                        }
+                        p.getInventory().addItem(new ItemStack(Material.EXPERIENCE_BOTTLE, amount % 64));
+                    } else {
+                        p.getInventory().addItem(new ItemStack(Material.EXPERIENCE_BOTTLE, xp / 7));
+                    }
+                    p.setLevel(0);
+                    p.sendMessage(ChatColor.GREEN + "Votre expérience a été convertie !");
+                } else {
+                    p.sendMessage(ChatColor.RED + "Vous n'avez pas assez d'expérience !");
+                }
+            } else if (command.equalsIgnoreCase(cmds.get(12))) {
+                if (args.length == 1) {
+                    ItemStack itemOffHand = p.getInventory().getItemInOffHand();
+                    ItemStack itemMainHand = p.getInventory().getItemInMainHand();
+                    if (itemOffHand.getType() != Material.AIR && itemMainHand.getType() != Material.AIR) {
+                        if (itemOffHand.getType() == itemMainHand.getType()) {
+                            if (itemOffHand.hasItemMeta() && itemOffHand.getItemMeta() != null && itemMainHand.hasItemMeta() && itemMainHand.getItemMeta() != null) {
+                                ItemStack is = new ItemStack(itemOffHand.getType());
+                                int lvlMax;
+                                    if(itemMainHand.getItemMeta() instanceof EnchantmentStorageMeta && itemOffHand.getItemMeta() instanceof EnchantmentStorageMeta){
+                                        Hashtable<EnchantmentStorageMeta, Integer> hash = mergeBooks((EnchantmentStorageMeta) itemOffHand.getItemMeta(),(EnchantmentStorageMeta) itemMainHand.getItemMeta());
+                                        EnchantmentStorageMeta esm = hash.keys().nextElement();
+                                        is.setItemMeta(esm);
+                                        lvlMax = hash.get(esm);
+                                    } else {
+                                        Hashtable<ItemMeta, Integer> hash = mergeItems(itemOffHand.getItemMeta(), itemMainHand.getItemMeta());
+                                        ItemMeta im = hash.keys().nextElement();
+                                        is.setItemMeta(im);
+                                        lvlMax = hash.get(im);
+                                    }
+
+                                if(pay(p, args[0], lvlMax)){
+
+                                    p.getInventory().setItemInMainHand(is);
+                                    p.getInventory().setItemInOffHand(null);
+
+                                    if(args[0].equals("xp")){
+                                        p.sendMessage(ChatColor.GREEN + "Vos items ont été fusionnés ! 40 niveaux d'expérience vous ont été consommés.");
+                                    } else if(args[0].equals("money")){
+                                        p.sendMessage(ChatColor.GREEN + "Vos items ont été fusionnés ! " + lvlMax*50 + " Nyr ont été débités de votre compte.");
+                                    }
+                                } else {
+                                    p.sendMessage(ChatColor.RED + "Il vous faut soit 40 niveaux d'expérience soit " + lvlMax*50 + " Nyromarks pour faire une fusion !");
+                                }
+                            } else {
+                                p.sendMessage(ChatColor.RED + "Il vous faut un item dans chaque main.");
+                            }
+                        } else {
+                            p.sendMessage(ChatColor.RED + "Vous devez avoir les mêmes types d'items dans chaque main.");
+                        }
+                    } else {
+                        p.sendMessage(ChatColor.RED + "Vous devez avoir un item par main.");
+                    }
+                } else {
+                    p.sendMessage(ChatColor.RED + "Arguments invalides ! Syntaxe : /fusion <xp:money>");
+                }
             }
         }
         return false;
     }
 
-    public static void giveStuff(Player p){
+    public boolean pay(Player p, String type, int levelMax) {
+        if (type.equals("xp")) {
+            if (p.getLevel() >= 40) {
+                p.setLevel(p.getLevel() - 40);
+                return true;
+            } else {
+                return false;
+            }
+        } else if (type.equals("money")) {
+            Bank bank = BankCache.get(p.getName());
+            if (bank.getAmount() >= levelMax*50) {
+                bank.remove(levelMax*50);
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
+    public Hashtable<ItemMeta, Integer> mergeItems(ItemMeta im1, ItemMeta im2){
+        ItemMeta im = im1.clone();
+        int lvlMax = 0;
+        for (Enchantment ench : im.getEnchants().keySet()) {
+            int lvl = im.getEnchants().get(ench);
+            if (im2.hasEnchant(ench)) {
+                im.removeEnchant(ench);
+                if (lvl > im2.getEnchants().get(ench)) {
+                    im.addEnchant(ench, lvl, true);
+                    lvlMax = lvl > lvlMax ? lvl : lvlMax;
+                } else if (lvl < im2.getEnchants().get(ench)) {
+                    im.addEnchant(ench, im2.getEnchantLevel(ench), true);
+                    lvlMax = im2.getEnchantLevel(ench) > lvlMax ? im2.getEnchantLevel(ench) : lvlMax;
+                } else {
+                    im.addEnchant(ench, lvl + 1, true);
+                    lvlMax = lvl + 1 > lvlMax ? lvl + 1 : lvlMax;
+                }
+            } else {
+                im.addEnchant(ench, im1.getEnchantLevel(ench), true);
+                lvlMax = lvl > lvlMax ? lvl : lvlMax;
+            }
+        }
+        Hashtable<ItemMeta, Integer> hash = new Hashtable<>();
+        hash.put(im, lvlMax);
+        return hash;
+    }
+    public Hashtable<EnchantmentStorageMeta, Integer> mergeBooks(EnchantmentStorageMeta em1, EnchantmentStorageMeta em2){
+        EnchantmentStorageMeta em = em1.clone();
+        int lvlMax = 0;
+        for (Enchantment ench : em.getStoredEnchants().keySet()) {
+            int lvl = em.getStoredEnchants().get(ench);
+            if (em2.hasStoredEnchant(ench)) {
+                em.removeStoredEnchant(ench);
+                if (lvl > em2.getStoredEnchants().get(ench)) {
+                    em.addStoredEnchant(ench, lvl, true);
+                    lvlMax = lvl > lvlMax ? lvl : lvlMax;
+                } else if (lvl < em2.getStoredEnchants().get(ench)) {
+                    em.addStoredEnchant(ench, em2.getStoredEnchantLevel(ench), true);
+                    lvlMax = em2.getStoredEnchantLevel(ench) > lvlMax ? em2.getStoredEnchantLevel(ench) : lvlMax;
+                } else {
+                    em.addStoredEnchant(ench, lvl + 1, true);
+                    lvlMax = lvl + 1 > lvlMax ? lvl + 1 : lvlMax;
+                }
+            } else {
+                em.addStoredEnchant(ench, em1.getStoredEnchantLevel(ench), true);
+                lvlMax = lvl > lvlMax ? lvl : lvlMax;
+            }
+        }
+        Hashtable<EnchantmentStorageMeta, Integer> hash = new Hashtable<>();
+        hash.put(em, lvlMax);
+        return hash;
+    }
+
+    public static void giveStuff(Player p) {
         p.getInventory().clear();
 
         ItemStack[] armor = {
@@ -114,7 +260,7 @@ public class CommandManager implements CommandExecutor {
         p.setGameMode(GameMode.SURVIVAL);
     }
 
-    public static ItemStack getUnbreakable(ItemStack item){
+    public static ItemStack getUnbreakable(ItemStack item) {
         ItemMeta m = item.getItemMeta();
         m.setUnbreakable(true);
         item.setItemMeta(m);

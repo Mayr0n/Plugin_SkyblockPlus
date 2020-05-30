@@ -14,12 +14,16 @@ import xyz.nyroma.Capitalism.jobs.JobCommands;
 import xyz.nyroma.Capitalism.jobs.JobListeners;
 import xyz.nyroma.Capitalism.jobs.JobManager;
 import xyz.nyroma.betterItems.BetterListeners;
+import xyz.nyroma.commands.CityCommands;
 import xyz.nyroma.commands.CommandManager;
 import xyz.nyroma.craftsCenter.CraftsManager;
 import xyz.nyroma.homes.*;
+import xyz.nyroma.listeners.CityListeners;
 import xyz.nyroma.logsCenter.logsListener;
-import xyz.nyroma.towny.*;
-import xyz.nyroma.tpPack.tpEtCooldowns;
+import xyz.nyroma.towny.citymanagement.CitiesCache;
+
+import java.util.ArrayList;
+import java.util.Hashtable;
 
 public class main extends JavaPlugin {
 
@@ -30,8 +34,8 @@ public class main extends JavaPlugin {
     @Override
     public void onEnable() {
 
-        for (String cmd : new CommandManager(new tpEtCooldowns(this)).getCommands()) {
-            this.getCommand(cmd).setExecutor(new CommandManager(new tpEtCooldowns(this)));
+        for (String cmd : new CommandManager().getCommands()) {
+            this.getCommand(cmd).setExecutor(new CommandManager());
         }
 
         for (String cmd : new CityCommands().getCommands()) {
@@ -64,7 +68,16 @@ public class main extends JavaPlugin {
         Bukkit.getServer().getPluginManager().registerEvents(new JobListeners(), this);
         Bukkit.getServer().getPluginManager().registerEvents(new ShopListeners(), this);
 
-        CitiesCache.setup(this);
+        Hashtable<String, Hashtable<Integer, ArrayList<Integer>>> claims = new Hashtable<>();
+        Hashtable<Integer, ArrayList<Integer>> coos = new Hashtable<>();
+        ArrayList<Integer> z = new ArrayList<>();
+        z.add(1);
+        z.add(-1);
+
+        coos.put(1, z);
+        coos.put(-1, z);
+
+        CitiesCache.setup(claims);
         HomesCache.setup(this);
         logsListener.setup();
         BankCache.setup(this);
@@ -85,7 +98,7 @@ public class main extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        CitiesCache.serializeAll();
+        CitiesCache.shutdown();
         HomesCache.serializeAll();
         logsListener.serializeAll();
         BankCache.serializeAll();

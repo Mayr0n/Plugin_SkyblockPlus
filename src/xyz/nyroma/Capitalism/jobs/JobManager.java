@@ -6,6 +6,7 @@ import xyz.nyroma.main.speedy;
 
 import java.io.*;
 import java.util.Hashtable;
+import java.util.Optional;
 
 public class JobManager {
 
@@ -62,11 +63,11 @@ public class JobManager {
             throw new JobException("Ce fichier ne dirige pas vers une banque existante. Suppression...");
         }
     }
-    public static Job getJob(String pseudo) throws JobException {
+    public static Optional<Job> getJob(String pseudo) {
         if(jobs.containsKey(pseudo)){
-            return jobs.get(pseudo);
+            return Optional.of(jobs.get(pseudo));
         } else {
-            throw new JobException("Ce joueur n'a pas de métier.");
+            return Optional.empty();
         }
     }
     public static void setJob(String pseudo, Job job){

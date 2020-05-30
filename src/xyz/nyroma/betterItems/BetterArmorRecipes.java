@@ -29,7 +29,11 @@ public class BetterArmorRecipes {
                 bc.crossCompleteRecipe(Material.SLIME_BALL, Material.IRON_INGOT, Material.GOLDEN_BOOTS, new BetterArmor(BetterArmors.JUMPER_BOOTS).getItemStack(2), "jb3"),
                 bc.crossCompleteRecipe(Material.SLIME_BALL, Material.IRON_BLOCK, Material.IRON_BOOTS, new BetterArmor(BetterArmors.JUMPER_BOOTS).getItemStack(3), "jb2"),
                 bc.crossCompleteRecipe(Material.SLIME_BALL, Material.DIAMOND, Material.DIAMOND_BOOTS, new BetterArmor(BetterArmors.JUMPER_BOOTS).getItemStack(4), "jb4"),
-                bc.crossCompleteRecipe(Material.SLIME_BALL, Material.NETHER_STAR, Material.DIAMOND_BOOTS, new BetterArmor(BetterArmors.JUMPER_BOOTS).getItemStack(5), "jb5")
+                bc.crossCompleteRecipe(Material.SLIME_BALL, Material.NETHER_STAR, Material.DIAMOND_BOOTS, new BetterArmor(BetterArmors.JUMPER_BOOTS).getItemStack(5), "jb5"),
+                bc.crossCompleteRecipe(Material.DRAGON_BREATH, Material.EMERALD, Material.LEATHER_CHESTPLATE, new BetterArmor(BetterArmors.HEROES_CHESTPLATE).getItemStack(1), "hc1"),
+                bc.crossCompleteRecipe(Material.DRAGON_BREATH, Material.EMERALD_BLOCK, Material.GOLDEN_CHESTPLATE, new BetterArmor(BetterArmors.HEROES_CHESTPLATE).getItemStack(2), "hc2"),
+                bc.crossCompleteRecipe(Material.DRAGON_BREATH, Material.EMERALD_BLOCK, Material.IRON_CHESTPLATE, new BetterArmor(BetterArmors.HEROES_CHESTPLATE).getItemStack(3), "hc3")
+
         );
     }
 }
