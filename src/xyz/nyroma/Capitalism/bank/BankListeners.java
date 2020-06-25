@@ -27,8 +27,12 @@ public class BankListeners implements Listener {
                             if (item.containsEnchantment(Enchantment.LOYALTY)) {
                                 Bank bank = BankCache.get(p.getName());
                                 float amount = Float.parseFloat(im.getLore().get(1).split(" ")[0]);
-                                bank.add(amount);
-                                p.getInventory().setItemInMainHand(null);
+                                bank.add(amount, Transaction.PLAYER_ADD);
+                                if(p.getInventory().getItemInMainHand().getAmount() != 1){
+                                    p.getInventory().getItemInMainHand().setAmount(p.getInventory().getItemInMainHand().getAmount()-1);
+                                } else {
+                                    p.getInventory().setItemInMainHand(null);
+                                }
                                 p.sendMessage(ChatColor.GREEN + String.valueOf(amount) + " Nyr ont été ajoutés à votre compte.");
                             }
                         } catch (NumberFormatException | NullPointerException ee) {
@@ -44,7 +48,7 @@ public class BankListeners implements Listener {
     @EventHandler
     public void onAdvance(PlayerAdvancementDoneEvent e){
         Bank bank = BankCache.get(e.getPlayer().getName());
-        bank.add(5);
+        bank.add(5, Transaction.AUTO_ADD);
     }
 
 }

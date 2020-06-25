@@ -5,8 +5,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import xyz.nyroma.main.NotFoundException;
-import xyz.nyroma.main.speedy;
+import xyz.nyroma.main.MainUtils;
 
 import java.util.Arrays;
 import java.util.List;
@@ -29,15 +28,14 @@ public class BankCommands implements CommandExecutor {
                     switch (args[0]) {
                         case "send":
                             if(args.length == 3){
-                                    if(speedy.getPlayerByName(args[1]).isPresent()){
-                                        Player toSend = speedy.getPlayerByName(args[1]).get();
+                                    if(MainUtils.getPlayerByName(args[1]).isPresent()){
+                                        Player toSend = MainUtils.getPlayerByName(args[1]).get();
                                         Bank b = BankCache.get(toSend.getName());
-
                                         try {
                                             int amount = Integer.parseInt(args[2]);
-                                            if(bank.remove(amount)){
+                                            if(bank.remove(amount, Transaction.PLAYER_REMOVE)){
                                                 p.sendMessage(ChatColor.GREEN + Integer.toString(amount) + " Nyr ont été retirés de votre compte.");
-                                                b.add(amount);
+                                                b.add(amount, Transaction.PLAYER_ADD);
                                                 toSend.sendMessage(ChatColor.GREEN + "Vous avez reçu " + amount + " Nyr de la part de " + p.getName() + " !");
                                                 p.sendMessage(ChatColor.GREEN + toSend.getName() + " a bien reçu les " + amount + " Nyr !");
                                             } else {
@@ -85,12 +83,12 @@ public class BankCommands implements CommandExecutor {
                     switch (args[0]) {
                         case "add":
                             int amount = Integer.parseInt(args[2]);
-                            BankCache.get(pseudo).add(amount);
+                            BankCache.get(pseudo).add(amount, Transaction.STATE_ADD);
                             p.sendMessage(ChatColor.GREEN + args[2] + " Nyr ont été ajoutés au compte de " + pseudo);
                             break;
                         case "remove":
                             int a = Integer.parseInt(args[2]);
-                            if(BankCache.get(pseudo).remove(a)){
+                            if(BankCache.get(pseudo).remove(a, Transaction.STATE_REMOVE)){
                                 p.sendMessage(ChatColor.GREEN + args[2] + " Nyr ont été supprimés du compte de " + pseudo);
                             } else {
                                 p.sendMessage(ChatColor.GREEN + pseudo + " n'a pas assez de money pour retirer ce montant.");
@@ -102,7 +100,7 @@ public class BankCommands implements CommandExecutor {
                         case "reset":
                             if(pseudo.equals("all")){
                                 for(Bank bank : BankCache.getBanks()){
-                                    bank.remove(bank.getAmount());
+                                    bank.remove(bank.getAmount(), Transaction.STATE_REMOVE);
                                 }
                                 p.sendMessage(ChatColor.GREEN + "Toutes les banques ont perdu leurs réserves.");
                             } else {

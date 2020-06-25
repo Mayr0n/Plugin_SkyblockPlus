@@ -9,5 +9,6 @@ public enum Job implements Serializable {
     LUMBER,
     FISHER,
     MINER,
-    ENCHANTER
+    ENCHANTER,
+    BREEDER
 }

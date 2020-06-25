@@ -3,11 +3,8 @@ package xyz.nyroma.commands;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.ArrayList;
-
-import static xyz.nyroma.main.speedy.sendErrorMessage;
+import static xyz.nyroma.main.MainUtils.sendErrorMessage;
 
 public class commands {
 

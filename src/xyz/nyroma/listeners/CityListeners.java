@@ -23,7 +23,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import xyz.nyroma.main.speedy;
+import xyz.nyroma.main.MainUtils;
 import xyz.nyroma.towny.citymanagement.CitiesCache;
 import xyz.nyroma.towny.citymanagement.City;
 import xyz.nyroma.towny.citymanagement.CityManager;
@@ -45,6 +45,8 @@ public class CityListeners implements Listener {
                 if (cantInteract(loc, p).isPresent()) {
                     City city = cantInteract(loc, p).get();
                     switch (city.getRelationStatus(p.getName())) {
+                        case ALLY:
+                            break;
                         case ENEMY:
                             p.addPotionEffect(new PotionEffect(PotionEffectType.HARM, 1, 1));
                         case NEUTRAL:
@@ -65,8 +67,8 @@ public class CityListeners implements Listener {
                             City city = CitiesCache.get(lore.get(1)).get();
                             city.getMembersManager().addMember(lore.get(3));
                             for (String pseudo : city.getMembersManager().getMembers()) {
-                                if (speedy.getPlayerByName(pseudo).isPresent()) {
-                                    Player play = speedy.getPlayerByName(pseudo).get();
+                                if (MainUtils.getPlayerByName(pseudo).isPresent()) {
+                                    Player play = MainUtils.getPlayerByName(pseudo).get();
                                     play.sendMessage(ChatColor.GREEN + p.getName() + " a rejoint la ville " + city.getName() + " !");
 
                                 } else {
@@ -109,7 +111,7 @@ public class CityListeners implements Listener {
         Entity ent = e.getEntity();
         if (ent instanceof TNTPrimed) {
             Location loc = ent.getLocation();
-            if (speedy.getClaimer(loc).isPresent()) {
+            if (MainUtils.getClaimer(loc).isPresent()) {
                 e.setCancelled(true);
             }
         }
@@ -120,7 +122,7 @@ public class CityListeners implements Listener {
         for (Block b : e.getBlocks()) {
             if (b.getType().equals(Material.SLIME_BLOCK) || b.getType().equals(Material.HONEY_BLOCK)) {
                 Location loc = b.getLocation();
-                if (speedy.getClaimer(loc).isPresent()) {
+                if (MainUtils.getClaimer(loc).isPresent()) {
                     e.setCancelled(true);
                     return;
                 }
@@ -155,7 +157,7 @@ public class CityListeners implements Listener {
     public void onDamage(EntityDamageEvent e) {
         if (e.getEntity() instanceof Villager) {
             Location loc = e.getEntity().getLocation();
-            if (speedy.getClaimer(loc).isPresent()) {
+            if (MainUtils.getClaimer(loc).isPresent()) {
                 if (!e.getCause().equals(EntityDamageEvent.DamageCause.FIRE)) {
                     e.setCancelled(true);
                 }
@@ -189,8 +191,8 @@ public class CityListeners implements Listener {
     }
 
     public Optional<City> cantInteract(Location loc, Player p) {
-        if (speedy.getClaimer(loc).isPresent()) {
-            City city = speedy.getClaimer(loc).get();
+        if (MainUtils.getClaimer(loc).isPresent()) {
+            City city = MainUtils.getClaimer(loc).get();
             if(!p.isOp()) {
                 if (city.getRelationStatus(p.getName()) == RelationStatus.ENEMY || city.getRelationStatus(p.getName()) == RelationStatus.NEUTRAL) {
                     return Optional.of(city);

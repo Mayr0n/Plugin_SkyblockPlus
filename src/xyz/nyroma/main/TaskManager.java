@@ -3,7 +3,8 @@ package xyz.nyroma.main;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.*;
-import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -13,16 +14,19 @@ import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 import xyz.nyroma.Capitalism.ScoreboardManager;
 import xyz.nyroma.Capitalism.bank.BankCache;
+import xyz.nyroma.Capitalism.bank.Transaction;
 import xyz.nyroma.betterItems.BetterArmor;
 import xyz.nyroma.betterItems.BetterArmors;
+import xyz.nyroma.bourseAPI.BourseCache;
+import xyz.nyroma.bourseAPI.Item;
 import xyz.nyroma.towny.citymanagement.CitiesCache;
 import xyz.nyroma.towny.citymanagement.City;
 import xyz.nyroma.towny.citymanagement.CityManager;
 import xyz.nyroma.towny.enums.RelationStatus;
 
-import java.util.Calendar;
+import java.util.Random;
 
-import static xyz.nyroma.main.speedy.getTime;
+import static xyz.nyroma.main.MainUtils.getTime;
 
 public class TaskManager {
     private JavaPlugin plugin;
@@ -70,12 +74,17 @@ public class TaskManager {
                         }
                     }
                     Bukkit.broadcastMessage(ChatColor.GREEN + "Fin de la tournée des taxes !");
+                    for(Item item : BourseCache.items){
+                        int amount = 0.005*item.getStocks() <= 1 ? 0 : (int) (0.005 * item.getStocks());
+                        item.buy(amount);
+                    }
+                    Bukkit.broadcastMessage(ChatColor.GREEN + "L'état a acheté des stocks à tous les items de la bourse.");
                 }
 
                 if(getTime().split(":")[1].equals("00") && getTime().split(":")[2].equals("00")){
-                    Bukkit.broadcastMessage(ChatColor.GREEN + "C'est ma tournée ! 5 Nyromarks pour tous les joueurs connectés !");
+                    Bukkit.broadcastMessage(ChatColor.DARK_GREEN + "C'est ma tournée ! 5 Nyromarks pour tous les joueurs connectés !");
                     for(Player p : Bukkit.getServer().getOnlinePlayers()){
-                        BankCache.get(p.getName()).add(5);
+                        BankCache.get(p.getName()).add(5, Transaction.AUTO_ADD);
                     }
                 }
             }
@@ -92,6 +101,7 @@ public class TaskManager {
             @Override
             public void run() {
                 CitiesCache.serializeAll();
+                BourseCache.serializeAll();
             }
         }.runTaskTimer(plugin, 600*20L, 600*20L);
 
@@ -100,8 +110,8 @@ public class TaskManager {
 
     public void sendToAllPlayerInCity(City city, String txt){
         for(String pseudo : city.getMembersManager().getMembers()){
-            if(speedy.getPlayerByName(pseudo).isPresent()){
-                speedy.getPlayerByName(pseudo).get().sendMessage(txt);
+            if(MainUtils.getPlayerByName(pseudo).isPresent()){
+                MainUtils.getPlayerByName(pseudo).get().sendMessage(txt);
             }
         }
     }
@@ -122,16 +132,35 @@ public class TaskManager {
                                     new BetterArmor(BetterArmors.WINGED_CHESTPLATE),
                                     new BetterArmor(BetterArmors.SPEEDY_LEGGINGS),
                                     new BetterArmor(BetterArmors.JUMPER_BOOTS),
-                                    new BetterArmor(BetterArmors.HEROES_CHESTPLATE)
+                                    new BetterArmor(BetterArmors.HEROES_CHESTPLATE),
+                                    new BetterArmor(BetterArmors.XRAY_HELMET)
                             };
                             for (BetterArmor ba : bt) {
                                 for (int i = 1; i <= 5; i++) {
                                     ItemStack tool = ba.getItemStack(i);
                                     if (im.getLore().equals(tool.getItemMeta().getLore())) {
-                                        if(i < 5) {
-                                            p.addPotionEffect(ba.getEffect().createEffect(300, i-1), true);
+                                        if (i < 5) {
+                                            if(ba.getEffect() != PotionEffectType.GLOWING) {
+                                                p.addPotionEffect(ba.getEffect().createEffect(300, i - 1), true);
+                                            } else {
+                                                for(Entity entity : p.getNearbyEntities(10,10,10)){
+                                                    if(entity instanceof LivingEntity){
+                                                        LivingEntity le = (LivingEntity) entity;
+                                                        le.addPotionEffect(ba.getEffect().createEffect(10, i - 1), true);
+                                                    }
+                                                }
+                                            }
                                         } else {
-                                            p.addPotionEffect(ba.getEffect().createEffect(300, (int) (i*1.5)), true);
+                                            if(ba.getEffect() != PotionEffectType.GLOWING) {
+                                                p.addPotionEffect(ba.getEffect().createEffect(300, (int) (i * 1.5)), true);
+                                            } else {
+                                                for(Entity entity : p.getNearbyEntities(25,25,25)){
+                                                    if(entity instanceof LivingEntity){
+                                                        LivingEntity le = (LivingEntity) entity;
+                                                        le.addPotionEffect(ba.getEffect().createEffect(10, (int) (i * 1.5)), true);
+                                                    }
+                                                }
+                                            }
                                         }
                                     }
                                 }
@@ -148,8 +177,8 @@ public class TaskManager {
 
     public void checkClaims(Player p) {
         Location loc = p.getLocation();
-        if (speedy.getClaimer(loc).isPresent()) {
-            City city = speedy.getClaimer(loc).get();
+        if (MainUtils.getClaimer(loc).isPresent()) {
+            City city = MainUtils.getClaimer(loc).get();
             p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.DARK_RED + "- Claim par " + city.getName() + " -"));
         } else {
             p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.DARK_GREEN + "- Territoire libre -"));
@@ -158,12 +187,15 @@ public class TaskManager {
 
     private void checkEnemy(Player p) {
         Location loc = p.getLocation();
-        if (speedy.getClaimer(loc).isPresent()) {
-            City city = speedy.getClaimer(loc).get();
-            if(city.getRelationStatus(p.getName()) == RelationStatus.ENEMY){
-                p.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 100, 5));
-                p.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 100, 5));
-                p.addPotionEffect(new PotionEffect(PotionEffectType.POISON, 100, 5));
+        if (MainUtils.getClaimer(loc).isPresent()) {
+            City city = MainUtils.getClaimer(loc).get();
+            if(new CityManager().getCityOfMember(p.getName()).isPresent()){
+                City city2 = new CityManager().getCityOfMember(p.getName()).get();
+                if(city.getRelationsManager().getEnemies().contains(city2.getName())){
+                    p.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 100, 5));
+                    p.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 100, 5));
+                    p.addPotionEffect(new PotionEffect(PotionEffectType.POISON, 100, 5));
+                }
             }
         }
     }

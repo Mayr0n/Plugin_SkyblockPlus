@@ -32,7 +32,8 @@ public class BetterArmorRecipes {
                 bc.crossCompleteRecipe(Material.SLIME_BALL, Material.NETHER_STAR, Material.DIAMOND_BOOTS, new BetterArmor(BetterArmors.JUMPER_BOOTS).getItemStack(5), "jb5"),
                 bc.crossCompleteRecipe(Material.DRAGON_BREATH, Material.EMERALD, Material.LEATHER_CHESTPLATE, new BetterArmor(BetterArmors.HEROES_CHESTPLATE).getItemStack(1), "hc1"),
                 bc.crossCompleteRecipe(Material.DRAGON_BREATH, Material.EMERALD_BLOCK, Material.GOLDEN_CHESTPLATE, new BetterArmor(BetterArmors.HEROES_CHESTPLATE).getItemStack(2), "hc2"),
-                bc.crossCompleteRecipe(Material.DRAGON_BREATH, Material.EMERALD_BLOCK, Material.IRON_CHESTPLATE, new BetterArmor(BetterArmors.HEROES_CHESTPLATE).getItemStack(3), "hc3")
+                bc.crossCompleteRecipe(Material.SPECTRAL_ARROW, Material.DIAMOND, Material.DIAMOND_HELMET, new BetterArmor(BetterArmors.XRAY_HELMET).getItemStack(4), "xh4"),
+                bc.crossCompleteRecipe(Material.SPECTRAL_ARROW, Material.NETHER_STAR, Material.DIAMOND_HELMET, new BetterArmor(BetterArmors.XRAY_HELMET).getItemStack(5), "xh5")
 
         );
     }

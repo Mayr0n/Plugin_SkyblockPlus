@@ -32,7 +32,7 @@ public class BotlinkManager {
         } else {
             s.append("Aucun connecté !");
         }
-        speedy.writeInFile(playerFile, s.toString(), true);
+        MainUtils.writeInFile(playerFile, s.toString(), true);
     }
 
     public boolean hasMess(){
@@ -40,7 +40,7 @@ public class BotlinkManager {
     }
 
     public void showMess(){
-        List<String> content = speedy.getFileContent(dtm);
+        List<String> content = MainUtils.getFileContent(dtm);
         dtm.delete();
         StringBuilder sb = new StringBuilder();
         sb.append(content.get(0)).append("\n");
@@ -52,12 +52,12 @@ public class BotlinkManager {
     }
 
     public void sendMess(String txt){
-        speedy.writeInFile(mtd, txt, false);
+        MainUtils.writeInFile(mtd, txt, false);
         log(txt);
     }
 
     private void log(String txt){
-        speedy.writeInFile(logs, txt, false);
+        MainUtils.writeInFile(logs, txt, false);
     }
 
 

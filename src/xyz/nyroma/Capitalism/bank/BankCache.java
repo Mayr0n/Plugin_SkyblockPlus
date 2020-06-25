@@ -2,15 +2,11 @@ package xyz.nyroma.Capitalism.bank;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
-import xyz.nyroma.main.speedy;
+import xyz.nyroma.main.MainUtils;
 
 import java.io.*;
-import java.time.temporal.TemporalAdjuster;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import java.util.Hashtable;
@@ -37,7 +33,7 @@ public class BankCache {
         return banks;
     }
     private static void writeInJson(File file, Bank bank) throws IOException {
-        speedy.testFileExist(file);
+        MainUtils.testFileExist(file);
 
         GsonBuilder builder = new GsonBuilder();
         Gson g = builder.setPrettyPrinting().create();
@@ -82,8 +78,8 @@ public class BankCache {
 
 
     public static void setup(JavaPlugin plugin){
-        speedy.testFolderExist(new File("data/towny/"));
-        speedy.testFolderExist(new File("data/towny/" + "banks/"));
+        MainUtils.testFolderExist(new File("data/towny/"));
+        MainUtils.testFolderExist(new File("data/towny/" + "banks/"));
 
         System.out.println("Chargement des banques...");
 

@@ -62,6 +62,14 @@ public class BetterArmor {
                 this.lowTier = ChatColor.GREEN;
                 this.highTier = ChatColor.DARK_GREEN;
                 break;
+            case XRAY_HELMET:
+                this.name = ChatColor.GREEN + "X-ray helmet";
+                this.type = "HELMET";
+                this.effet = "permet de voir les mobs à travers les blocks.";
+                this.effect = PotionEffectType.GLOWING;
+                this.lowTier = ChatColor.GOLD;
+                this.highTier = ChatColor.GOLD;
+                break;
         }
     }
 

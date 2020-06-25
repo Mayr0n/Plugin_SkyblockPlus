@@ -18,10 +18,12 @@ public class ScoreboardManager {
     private Objective pourcentage;
     private Objective deaths;
     private Objective cities;
+    private Objective global;
     private Scoreboard moneyScoreboard;
     private Scoreboard miscScoreboard;
     private Scoreboard deathScoreboard;
     private Scoreboard cityScoreboard;
+    private Scoreboard globalScoreboard;
     private Hashtable<Scoreboard, Objective> test = new Hashtable<>();
     public static Scoreboard current;
 
@@ -53,8 +55,14 @@ public class ScoreboardManager {
 
         this.cityScoreboard = manager.getNewScoreboard();
 
-        this.cities = cityScoreboard.registerNewObjective("Cities' money", "dummy", "Cities' money");
+        this.cities = cityScoreboard.registerNewObjective("Cities' money", "dummy", ChatColor.DARK_RED + "Cities' money");
         this.cities.setDisplaySlot(DisplaySlot.SIDEBAR);
+        //------------------------------
+
+        this.globalScoreboard = manager.getNewScoreboard();
+
+        this.global = globalScoreboard.registerNewObjective("Global money", "dummy", ChatColor.DARK_RED + "Global money");
+        this.global.setDisplaySlot(DisplaySlot.SIDEBAR);
 
         current = this.moneyScoreboard;
         setScoreboard(this.server);
@@ -75,6 +83,15 @@ public class ScoreboardManager {
             Score score = this.cities.getScore(ChatColor.DARK_AQUA + city.getName());
             score.setScore((int) city.getMoneyManager().getAmount());
         }
+        for(City city : CitiesCache.getCities()){
+            Score score = this.global.getScore(ChatColor.DARK_AQUA + city.getName());
+            int amount = 0;
+            for(String player : city.getMembersManager().getMembers()){
+                amount += BankCache.get(player).getAmount();
+            }
+            amount += city.getMoneyManager().getAmount();
+            score.setScore(amount);
+        }
         this.pourcentage.getScore(ChatColor.RED + "1% des richesses").setScore(total/100);
         for(OfflinePlayer p : Bukkit.getServer().getWhitelistedPlayers()){
             Score score = this.deaths.getScore(ChatColor.DARK_AQUA + p.getName());
@@ -85,10 +102,9 @@ public class ScoreboardManager {
     }
 
     public void setScoreboard(Server server){
-        List<Scoreboard> sc = Arrays.asList(this.moneyScoreboard, this.miscScoreboard, this.deathScoreboard, this.cityScoreboard);
+        List<Scoreboard> sc = Arrays.asList(this.moneyScoreboard, this.miscScoreboard, this.deathScoreboard, this.cityScoreboard, this.globalScoreboard);
         for(Player p : server.getOnlinePlayers()) {
             int ind = sc.indexOf(p.getScoreboard());
-            System.out.println("Index : " + ind);
             if(ind == sc.size()-1 || ind == -1){
                 ind = 0;
             } else {
@@ -96,7 +112,7 @@ public class ScoreboardManager {
             }
 
             if(sc.get(ind).getObjective(DisplaySlot.PLAYER_LIST) == null){
-                Objective o = sc.get(ind).registerNewObjective("health", "dummy", "health");
+                Objective o = sc.get(ind).registerNewObjective("health", "health", "health");
                 o.setDisplaySlot(DisplaySlot.PLAYER_LIST);
                 o.setRenderType(RenderType.HEARTS);
             }

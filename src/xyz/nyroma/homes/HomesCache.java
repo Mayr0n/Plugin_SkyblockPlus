@@ -2,7 +2,7 @@ package xyz.nyroma.homes;
 
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
-import xyz.nyroma.main.speedy;
+import xyz.nyroma.main.MainUtils;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -11,7 +11,7 @@ public class HomesCache {
     public static ArrayList<PlayerHomes> sethomes = new ArrayList<>();
     private static File folder = new File("data/sethomes/");
     public static void setup(JavaPlugin plugin) {
-        speedy.testFolderExist(folder);
+        MainUtils.testFolderExist(folder);
         try {
             sethomes.addAll(HomesCache.getHomesFromFile());
         } catch (HomesException e) {

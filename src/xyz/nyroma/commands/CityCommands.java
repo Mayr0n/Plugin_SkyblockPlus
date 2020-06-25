@@ -13,7 +13,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import xyz.nyroma.Capitalism.bank.Bank;
 import xyz.nyroma.Capitalism.bank.BankCache;
-import xyz.nyroma.main.speedy;
+import xyz.nyroma.Capitalism.bank.Transaction;
+import xyz.nyroma.main.MainUtils;
 import xyz.nyroma.towny.citymanagement.CitiesCache;
 import xyz.nyroma.towny.citymanagement.City;
 import xyz.nyroma.towny.citymanagement.CityManager;
@@ -52,7 +53,7 @@ public class CityCommands implements CommandExecutor {
                                 if (name.length() <= 20) {
                                     try {
                                         City city = new City(name, "DiscUniverse", p.getName());
-                                        bank.remove(50);
+                                        bank.remove(50, Transaction.STATE_REMOVE);
                                         city.getMoneyManager().addMoney(25);
                                         p.sendMessage(ChatColor.GREEN + "Votre ville " + name + " a été créée !");
                                         p.playSound(p.getLocation(), Sound.ENTITY_ENDER_DRAGON_GROWL, 100, 1);
@@ -116,14 +117,7 @@ public class CityCommands implements CommandExecutor {
                                         p.sendMessage(ChatColor.GREEN + "- " + enemy);
                                     }
                                 }
-                                p.sendMessage(ChatColor.DARK_GREEN + "Claims : (" + cmm.getAmount() + "/" + cmm.getMax() + ")");
-                                for (String world : cmm.getClaims().keySet()) {
-                                    for (int x : cmm.getClaims().get(world).keySet()) {
-                                        for (int z : cmm.getClaims().get(world).get(x)) {
-                                            p.sendMessage(ChatColor.GREEN + "-> " + world + " " + x + " " + z);
-                                        }
-                                    }
-                                }
+                                p.sendMessage(ChatColor.DARK_GREEN + "Claims : " + cmm.getAmount() + "/" + cmm.getMax());
                                 p.sendMessage(ChatColor.DARK_GREEN + "-----------------------");
                             } else {
                                 p.sendMessage(ChatColor.RED + "Cette ville n'existe pas.");
@@ -161,7 +155,7 @@ public class CityCommands implements CommandExecutor {
                             }
                             else if (args[0].equals(Commands.OWNER.getCmd())) {
                                 if (args.length == 2) {
-                                    if (speedy.getPlayerByName(args[1]).isPresent()) {
+                                    if (MainUtils.getPlayerByName(args[1]).isPresent()) {
                                         city.changeOwner(args[1]);
                                         p.sendMessage(ChatColor.GREEN + "Le propriétaire de la ville a été changé.");
                                     } else {
@@ -179,8 +173,8 @@ public class CityCommands implements CommandExecutor {
                                         if (args[1].equals(SubCommands.ALLY_ADD.toString())) {
                                             if (city.getRelationsManager().addAlly(c)) {
                                                 p.sendMessage(ChatColor.GREEN + "La ville " + c.getName() + " est devenue votre alliée.");
-                                                if (speedy.getPlayerByName(c.getOwner()).isPresent()) {
-                                                    Player owner = speedy.getPlayerByName(c.getOwner()).get();
+                                                if (MainUtils.getPlayerByName(c.getOwner()).isPresent()) {
+                                                    Player owner = MainUtils.getPlayerByName(c.getOwner()).get();
                                                     owner.sendMessage(ChatColor.RED + city.getName() + " a ajouté votre ville de la liste de ses alliées !");
                                                 }
                                             } else {
@@ -189,8 +183,8 @@ public class CityCommands implements CommandExecutor {
                                         } else if (args[1].equals(SubCommands.ALLY_REMOVE.toString())) {
                                             if (city.getRelationsManager().removeAlly(c)) {
                                                 p.sendMessage(ChatColor.GREEN + "La ville " + c.getName() + " n'est plus votre alliée.");
-                                                if (speedy.getPlayerByName(c.getOwner()).isPresent()) {
-                                                    Player owner = speedy.getPlayerByName(c.getOwner()).get();
+                                                if (MainUtils.getPlayerByName(c.getOwner()).isPresent()) {
+                                                    Player owner = MainUtils.getPlayerByName(c.getOwner()).get();
                                                     owner.sendMessage(ChatColor.RED + city.getName() + " a retiré votre ville de la liste de ses alliées !");
                                                 }
                                             } else {
@@ -262,8 +256,8 @@ public class CityCommands implements CommandExecutor {
                                         if (args[1].equals(SubCommands.ENEMY_ADD.toString())) {
                                             if (city.getRelationsManager().addEnemy(c)) {
                                                 p.sendMessage(ChatColor.GREEN + "La ville " + c.getName() + " est devenue votre ennemie.");
-                                                if (speedy.getPlayerByName(c.getOwner()).isPresent()) {
-                                                    Player owner = speedy.getPlayerByName(c.getOwner()).get();
+                                                if (MainUtils.getPlayerByName(c.getOwner()).isPresent()) {
+                                                    Player owner = MainUtils.getPlayerByName(c.getOwner()).get();
                                                     owner.sendMessage(ChatColor.RED + city.getName() + " a ajouté votre ville de la liste de ses ennemis !");
                                                 }
                                             } else {
@@ -272,8 +266,8 @@ public class CityCommands implements CommandExecutor {
                                         } else if (args[1].equals(SubCommands.ENEMY_REMOVE.toString())) {
                                             if (city.getRelationsManager().removeEnemy(c)) {
                                                 p.sendMessage(ChatColor.GREEN + "La ville " + c.getName() + " n'est plus votre ennemie.");
-                                                if (speedy.getPlayerByName(c.getOwner()).isPresent()) {
-                                                    Player owner = speedy.getPlayerByName(c.getOwner()).get();
+                                                if (MainUtils.getPlayerByName(c.getOwner()).isPresent()) {
+                                                    Player owner = MainUtils.getPlayerByName(c.getOwner()).get();
                                                     owner.sendMessage(ChatColor.RED + city.getName() + " a retiré votre ville de la liste de ses ennemis !");
                                                 }
                                             } else {
@@ -300,8 +294,8 @@ public class CityCommands implements CommandExecutor {
                             else if (args[0].equals(Commands.MEMBERS.getCmd())) {
                                 if (args.length == 3) {
                                     if (args[1].equals(SubCommands.MEMBERS_ADD.toString())) {
-                                        if (speedy.getPlayerByName(args[2]).isPresent()) {
-                                            sendInvit(city, speedy.getPlayerByName(args[2]).get());
+                                        if (MainUtils.getPlayerByName(args[2]).isPresent()) {
+                                            sendInvit(city, MainUtils.getPlayerByName(args[2]).get());
                                             p.sendMessage(ChatColor.GREEN + "Une invitation lui a été envoyée.");
                                         } else {
                                             p.sendMessage(ChatColor.RED + "Ce joueur n'est pas connecté.");
@@ -325,7 +319,7 @@ public class CityCommands implements CommandExecutor {
                                 if (args.length == 3) {
                                     if (args[1].equals(SubCommands.MONEY_ADD.toString())) {
                                         float amount = Float.parseFloat(args[2]);
-                                        if (bank.remove(amount)) {
+                                        if (bank.remove(amount, Transaction.CITY_REMOVE)) {
                                             city.getMoneyManager().addMoney(amount);
                                             p.sendMessage(ChatColor.GREEN + args[2] + " Nyr ont été placés dans la banque de votre ville.");
                                         } else {
@@ -334,7 +328,7 @@ public class CityCommands implements CommandExecutor {
                                     } else if (args[1].equals(SubCommands.MONEY_REMOVE.toString())) {
                                         float a = Float.parseFloat(args[2]);
                                         if (city.getMoneyManager().removeMoney(a)) {
-                                            bank.add(a);
+                                            bank.add(a, Transaction.CITY_ADD);
                                             p.sendMessage(ChatColor.GREEN + args[2] + " Nyr ont été déplacés vers votre banque personnelle.");
                                         } else {
                                             p.sendMessage(ChatColor.RED + "Votre ville n'a pas l'argent nécessaire pour retirer cette somme.");
@@ -353,7 +347,7 @@ public class CityCommands implements CommandExecutor {
                                             int prime = Integer.parseInt(args[2]);
                                             if(!(prime <= 0)){
                                                 if(!(prime > city.getMoneyManager().getAmount() && prime > enemy.getMoneyManager().getAmount())){
-                                                    if(speedy.getPlayerByName(enemy.getOwner()).isPresent()){
+                                                    if(MainUtils.getPlayerByName(enemy.getOwner()).isPresent()){
                                                         sendWarDeclaration(enemy, city, prime);
                                                         p.sendMessage(ChatColor.BLACK + "La déclaration de guerre a été lancée.");
                                                         p.playSound(p.getLocation(), Sound.ENTITY_ENDER_DRAGON_GROWL, 100, 1);
@@ -393,7 +387,7 @@ public class CityCommands implements CommandExecutor {
                                 if (args.length == 3) {
                                     if (args[1].equals(SubCommands.MONEY_ADD.toString())) {
                                         float amount = Float.parseFloat(args[2]);
-                                        if (bank.remove(amount)) {
+                                        if (bank.remove(amount, Transaction.CITY_ADD)) {
                                             city.getMoneyManager().addMoney(amount);
                                             p.sendMessage(ChatColor.GREEN + args[2] + " Nyr ont été placés dans la banque de votre ville.");
                                         } else {
@@ -412,10 +406,24 @@ public class CityCommands implements CommandExecutor {
                         p.sendMessage(ChatColor.RED + "Vous n'appartenez à aucune ville !");
                     }
                 }
-            } else if (cmd.equals(commands.get(1))) {
-                if (args[0].equals("go") && p.getName().equals("Imperayser")) {
-                    cm.removeCity(CitiesCache.get("l'Etat").get());
-                    p.sendMessage(ChatColor.GREEN + "Done.");
+            } else if (cmd.equals(commands.get(1)) && p.isOp()) {
+                if(args.length >= 4) {
+                    if (args[0].equals("modify")) {
+                        if(MainUtils.getPlayerByName(args[2]).isPresent() && CitiesCache.get(getArgsLeft(args, 3)).isPresent()) {
+                            Player play = MainUtils.getPlayerByName(args[2]).get();
+                            City ci = CitiesCache.get(getArgsLeft(args, 3)).get();
+
+                            if ("owner".equals(args[1])) {
+                                ci.changeOwner(play.getName());
+                                ci.getMembersManager().addMember(play.getName());
+                                p.sendMessage(ChatColor.GREEN + "Owner modifié.");
+                            }
+                        } else {
+                            p.sendMessage(ChatColor.RED + "Le joueur n'est pas connecté ou cette ville n'existe pas.");
+                        }
+                    } else {
+                        p.sendMessage(getErrorMessage("/scity modify owner <pseudo> <ville>"));
+                    }
                 }
             }
         }
@@ -454,12 +462,12 @@ public class CityCommands implements CommandExecutor {
         im.setLore(Arrays.asList(
                 ChatColor.RED + "La ville suivante vous déclare la guerre :", ChatColor.DARK_RED + enemy.getName(),
                 ChatColor.RED + "Prime de victoire :", ChatColor.DARK_RED + String.valueOf(prime) + " Nyromarks",
-                ChatColor.DARK_AQUA + "Pour accepter, faites un clic droit avec cette déclaration en main."));
+                ChatColor.DARK_AQUA + "Pour accepter, faites un clic droit avec cette déclaration en Main."));
         im.addEnchant(Enchantment.DAMAGE_ALL, 5, true);
         is.setItemMeta(im);
 
-        if(speedy.getPlayerByName(city.getOwner()).isPresent()){
-            Player p = speedy.getPlayerByName(city.getOwner()).get();
+        if(MainUtils.getPlayerByName(city.getOwner()).isPresent()){
+            Player p = MainUtils.getPlayerByName(city.getOwner()).get();
             p.sendMessage(ChatColor.RED + "La ville " + enemy.getName() + " vous déclare la guerre !");
             p.playSound(p.getLocation(), Sound.ENTITY_WITHER_SPAWN, 100, 1);
             p.getWorld().dropItem(p.getLocation(), is);

@@ -96,6 +96,7 @@ public class BetterCrafts {
                 circleRecipe(Material.DIRT, Material.FEATHER, getAngelicDirt(), "angelicdirt"),
                 circleRecipe(Material.DIAMOND, Material.APPLE, getDApple(), "dapple"),
                 circleRecipe(Material.OBSIDIAN, Material.APPLE, getOApple(), "oapple"),
+                circleRecipe(Material.OBSIDIAN, Material.NETHER_STAR, new ItemStack(Material.BEDROCK, 8), "bedrock"),
                 circleRecipe(Material.GOLD_BLOCK, Material.APPLE, new ItemStack(Material.ENCHANTED_GOLDEN_APPLE), "notchapple"),
                 crossCompleteRecipe(Material.ROTTEN_FLESH, Material.RED_DYE, Material.WHEAT_SEEDS, new ItemStack(Material.RED_MUSHROOM), "rmush"),
                 crossCompleteRecipe(Material.SUGAR, Material.JUNGLE_LOG, Material.VINE, new ItemStack(Material.COCOA_BEANS, 4), "cacao"),
@@ -245,6 +246,26 @@ public class BetterCrafts {
         bld.addIngredient(Material.YELLOW_DYE);
         bld.addIngredient(Material.MAGENTA_DYE);
 
+        ShapelessRecipe wh = new ShapelessRecipe(CraftsManager.getNamespacedkey(plugin, "wh"), new ItemStack(Material.WHEAT));
+        wh.addIngredient(Material.WHEAT_SEEDS);
+        wh.addIngredient(Material.BONE_MEAL);
+        wh.addIngredient(Material.BONE_MEAL);
+        wh.addIngredient(Material.BONE_MEAL);
+
+        ShapelessRecipe be = new ShapelessRecipe(CraftsManager.getNamespacedkey(plugin, "be"), new ItemStack(Material.BEETROOT));
+        be.addIngredient(Material.BEETROOT_SEEDS);
+        be.addIngredient(Material.BONE_MEAL);
+        be.addIngredient(Material.BONE_MEAL);
+        be.addIngredient(Material.BONE_MEAL);
+
+        ShapelessRecipe sn1 = new ShapelessRecipe(CraftsManager.getNamespacedkey(plugin, "sn1"), new ItemStack(Material.SNOWBALL));
+        sn1.addIngredient(Material.SLIME_BALL);
+        sn1.addIngredient(Material.WATER_BUCKET);
+
+        ShapelessRecipe sn2 = new ShapelessRecipe(CraftsManager.getNamespacedkey(plugin, "sn2"), new ItemStack(Material.SNOW_BLOCK));
+        sn2.addIngredient(Material.SLIME_BLOCK);
+        sn2.addIngredient(Material.WATER_BUCKET);
+
 
         ShapelessRecipe satur = new ShapelessRecipe(CraftsManager.getNamespacedkey(plugin, "satur"), getSatur());
         satur.addIngredient(Material.COOKED_BEEF);
@@ -257,10 +278,34 @@ public class BetterCrafts {
         satur.addIngredient(Material.GOLDEN_CARROT);
         satur.addIngredient(Material.PUMPKIN_PIE);
 
+        ShapelessRecipe pc = new ShapelessRecipe(CraftsManager.getNamespacedkey(plugin, "pc"), new ItemStack(Material.PACKED_ICE));
+        pc.addIngredient(Material.ICE);
+        pc.addIngredient(Material.ICE);
+        pc.addIngredient(Material.ICE);
+        pc.addIngredient(Material.ICE);
+
         return Arrays.asList(
           c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15, c16, grav, sand, grass, leather, slimeball, l1, l2, l3, l4, cob,
-                w1,w2,w3,w4,w5,w6,w7,w8,w9,w10,w11,w12,w13,w14,w15,fea,sto,bld, satur
+                w1,w2,w3,w4,w5,w6,w7,w8,w9,w10,w11,w12,w13,w14,w15,fea,sto,bld,satur,wh,be, sn1, sn2, pc,
+                fishRecipe(Material.COD, new ItemStack(Material.COD_BUCKET), "codegg"),
+                fishRecipe(Material.SALMON, new ItemStack(Material.SALMON_BUCKET), "salmegg"),
+                fishRecipe(Material.TROPICAL_FISH, new ItemStack(Material.TROPICAL_FISH_BUCKET), "tropegg"),
+                fishRecipe(Material.PUFFERFISH, new ItemStack(Material.PUFFERFISH_BUCKET), "puffegg"),
+                getSquaredRecipe(Material.FIRE_CORAL_FAN, new ItemStack(Material.FIRE_CORAL_BLOCK), "fcb"),
+                getSquaredRecipe(Material.BRAIN_CORAL_FAN, new ItemStack(Material.BRAIN_CORAL_BLOCK), "bcb"),
+                getSquaredRecipe(Material.BUBBLE_CORAL_FAN, new ItemStack(Material.BUBBLE_CORAL_BLOCK), "bcbb"),
+                getSquaredRecipe(Material.HORN_CORAL_FAN, new ItemStack(Material.HORN_CORAL_BLOCK), "hcb"),
+                getSquaredRecipe(Material.TUBE_CORAL_FAN, new ItemStack(Material.TUBE_CORAL_BLOCK), "tcb")
         );
+    }
+
+    public ShapelessRecipe getSquaredRecipe(Material material, ItemStack item, String name){
+        ShapelessRecipe pc = new ShapelessRecipe(CraftsManager.getNamespacedkey(plugin, name), item);
+        pc.addIngredient(material);
+        pc.addIngredient(material);
+        pc.addIngredient(material);
+        pc.addIngredient(material);
+        return pc;
     }
 
     public ItemStack getAngelicDirt(){
@@ -273,6 +318,12 @@ public class BetterCrafts {
         return it;
     }
 
+    public ShapelessRecipe fishRecipe(Material material, ItemStack item, String name) {
+        ShapelessRecipe i = new ShapelessRecipe(CraftsManager.getNamespacedkey(plugin, name), item);
+        i.addIngredient(material);
+        i.addIngredient(Material.WATER_BUCKET);
+        return i;
+    }
     public ShapedRecipe simpleRecipe(Material material, ItemStack item, String name) {
         ShapedRecipe i = new ShapedRecipe(CraftsManager.getNamespacedkey(plugin, name), item);
         i.shape("aaa", "aaa", "aaa");
