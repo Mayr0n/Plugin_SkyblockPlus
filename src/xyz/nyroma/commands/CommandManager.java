@@ -17,6 +17,7 @@ import xyz.nyroma.bourseAPI.BourseCache;
 import xyz.nyroma.bourseAPI.Category;
 import xyz.nyroma.bourseAPI.Item;
 import xyz.nyroma.homes.HomeManager;
+import xyz.nyroma.listeners.MainListeners;
 import xyz.nyroma.logsCenter.LogsListener;
 import xyz.nyroma.main.BotlinkManager;
 
@@ -35,7 +36,7 @@ public class CommandManager implements CommandExecutor {
     public List<String> getCommands() {
         return Arrays.asList(
                 "pvp", "spawn", "invsee", "tpa",
-                "rc", "lt", "skick", "sban", "stuff", "sendisc", "staff", "xpconvert", "fusion", "tiktok");
+                "rc", "lt", "skick", "sban", "stuff", "sendisc", "staff", "xpconvert", "fusion", "tiktok", "nether");
     }
 
     @Override
@@ -181,6 +182,40 @@ public class CommandManager implements CommandExecutor {
                 }
             } else if (command.equalsIgnoreCase(cmds.get(13))) {
                 p.openInventory(Bukkit.createInventory(null, 54, "Trash"));
+            } else if(command.equalsIgnoreCase(cmds.get(14)) && p.isOp()){
+                if(args.length == 1){
+                    if(args[0].equals("on") || args[0].equals("off")){
+                        switch(args[0]){
+                            case "on":
+                                MainListeners.netherActivated = true;
+                                p.sendMessage(ChatColor.RED + "Activé.");
+                                break;
+                            case "off":
+                                MainListeners.netherActivated = false;
+                                p.sendMessage(ChatColor.RED + "Désactivé.");
+                                break;
+                        }
+                    } else {
+                        p.sendMessage(ChatColor.RED + "Arguments invalides ! Syntaxe : /nether <on:off>");
+                    }
+                }
+            } else if(command.equalsIgnoreCase(cmds.get(15)) && p.isOp()){
+                if(args.length == 1){
+                    if(args[0].equals("on") || args[0].equals("off")){
+                        switch(args[0]){
+                            case "on":
+                                MainListeners.endActivated = true;
+                                p.sendMessage(ChatColor.RED + "Activé.");
+                                break;
+                            case "off":
+                                MainListeners.endActivated = false;
+                                p.sendMessage(ChatColor.RED + "Désactivé.");
+                                break;
+                        }
+                    } else {
+                        p.sendMessage(ChatColor.RED + "Arguments invalides ! Syntaxe : /end <on:off>");
+                    }
+                }
             }
         }
         return false;

@@ -4,7 +4,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.Ageable;
-import org.bukkit.craftbukkit.v1_15_R1.entity.CraftItem;
+import org.bukkit.craftbukkit.v1_16_R1.entity.CraftItem;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -85,7 +85,7 @@ public class JobListeners implements Listener {
                                 bank.add(0.2f, Transaction.JOB_ADD);
                                 break;
                             case ENDERMAN:
-                            case PIG_ZOMBIE:
+                            case PIGLIN:
                                 bank.add(0.05f, Transaction.JOB_ADD);
                                 break;
                             case BLAZE:

@@ -22,9 +22,6 @@ import xyz.nyroma.bourseAPI.Item;
 import xyz.nyroma.towny.citymanagement.CitiesCache;
 import xyz.nyroma.towny.citymanagement.City;
 import xyz.nyroma.towny.citymanagement.CityManager;
-import xyz.nyroma.towny.enums.RelationStatus;
-
-import java.util.Random;
 
 import static xyz.nyroma.main.MainUtils.getTime;
 
@@ -141,23 +138,23 @@ public class TaskManager {
                                     if (im.getLore().equals(tool.getItemMeta().getLore())) {
                                         if (i < 5) {
                                             if(ba.getEffect() != PotionEffectType.GLOWING) {
-                                                p.addPotionEffect(ba.getEffect().createEffect(300, i - 1), true);
+                                                p.addPotionEffect(ba.getEffect().createEffect(300, i - 1));
                                             } else {
                                                 for(Entity entity : p.getNearbyEntities(10,10,10)){
                                                     if(entity instanceof LivingEntity){
                                                         LivingEntity le = (LivingEntity) entity;
-                                                        le.addPotionEffect(ba.getEffect().createEffect(10, i - 1), true);
+                                                        le.addPotionEffect(ba.getEffect().createEffect(10, i - 1));
                                                     }
                                                 }
                                             }
                                         } else {
                                             if(ba.getEffect() != PotionEffectType.GLOWING) {
-                                                p.addPotionEffect(ba.getEffect().createEffect(300, (int) (i * 1.5)), true);
+                                                p.addPotionEffect(ba.getEffect().createEffect(300, (int) (i * 1.5)));
                                             } else {
                                                 for(Entity entity : p.getNearbyEntities(25,25,25)){
                                                     if(entity instanceof LivingEntity){
                                                         LivingEntity le = (LivingEntity) entity;
-                                                        le.addPotionEffect(ba.getEffect().createEffect(10, (int) (i * 1.5)), true);
+                                                        le.addPotionEffect(ba.getEffect().createEffect(10, (int) (i * 1.5)));
                                                     }
                                                 }
                                             }
