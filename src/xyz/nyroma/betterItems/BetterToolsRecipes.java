@@ -5,7 +5,7 @@ import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.plugin.java.JavaPlugin;
-import xyz.nyroma.craftsCenter.CraftsManager;
+import xyz.nyroma.crafts.CraftsManager;
 
 import java.util.ArrayList;
 import java.util.Arrays;

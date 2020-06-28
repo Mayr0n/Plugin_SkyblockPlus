@@ -1,10 +1,10 @@
-package xyz.nyroma.Capitalism.jobs;
+package xyz.nyroma.listeners;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.Ageable;
-import org.bukkit.craftbukkit.v1_15_R1.entity.CraftItem;
+import org.bukkit.craftbukkit.v1_16_R1.entity.CraftItem;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -20,9 +20,11 @@ import org.bukkit.event.player.PlayerFishEvent;
 import org.bukkit.event.player.PlayerItemDamageEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import xyz.nyroma.Capitalism.bank.Bank;
-import xyz.nyroma.Capitalism.bank.BankCache;
-import xyz.nyroma.Capitalism.bank.Transaction;
+import xyz.nyroma.Capitalism.jobs.Job;
+import xyz.nyroma.Capitalism.jobs.JobUtils;
+import xyz.nyroma.banks.Bank;
+import xyz.nyroma.banks.BankCache;
+import xyz.nyroma.banks.Transaction;
 
 import java.util.List;
 
@@ -85,7 +87,7 @@ public class JobListeners implements Listener {
                                 bank.add(0.2f, Transaction.JOB_ADD);
                                 break;
                             case ENDERMAN:
-                            case PIG_ZOMBIE:
+                            case PIGLIN:
                                 bank.add(0.05f, Transaction.JOB_ADD);
                                 break;
                             case BLAZE:

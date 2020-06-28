@@ -2,7 +2,6 @@ package xyz.nyroma.listeners;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -10,13 +9,13 @@ import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import xyz.nyroma.Capitalism.bank.Bank;
-import xyz.nyroma.Capitalism.bank.BankCache;
-import xyz.nyroma.Capitalism.bank.Transaction;
 import xyz.nyroma.Capitalism.bourse.CategoryHolder;
 import xyz.nyroma.Capitalism.bourse.GUIUtils;
 import xyz.nyroma.Capitalism.bourse.ItemHolder;
 import xyz.nyroma.Capitalism.bourse.TradeHolder;
+import xyz.nyroma.banks.Bank;
+import xyz.nyroma.banks.BankCache;
+import xyz.nyroma.banks.Transaction;
 import xyz.nyroma.bourseAPI.BourseCache;
 import xyz.nyroma.bourseAPI.Item;
 

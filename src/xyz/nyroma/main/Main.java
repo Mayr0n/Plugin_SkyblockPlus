@@ -4,25 +4,26 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
-import xyz.nyroma.Capitalism.bank.BankCache;
-import xyz.nyroma.Capitalism.bank.BankCommands;
-import xyz.nyroma.Capitalism.bank.BankListeners;
+import xyz.nyroma.commands.BankCommands;
+import xyz.nyroma.listeners.BankListeners;
+import xyz.nyroma.banks.BankCache;
 import xyz.nyroma.commands.BourseCommands;
 import xyz.nyroma.listeners.BourseListener;
-import xyz.nyroma.Capitalism.jobs.JobCommands;
-import xyz.nyroma.Capitalism.jobs.JobListeners;
+import xyz.nyroma.commands.JobCommands;
+import xyz.nyroma.listeners.JobListeners;
 import xyz.nyroma.Capitalism.jobs.JobUtils;
 import xyz.nyroma.betterItems.BetterListeners;
 import xyz.nyroma.bourseAPI.BourseCache;
 import xyz.nyroma.commands.CityCommands;
-import xyz.nyroma.commands.CommandManager;
-import xyz.nyroma.craftsCenter.CraftsManager;
+import xyz.nyroma.commands.MainCommands;
+import xyz.nyroma.crafts.CraftsManager;
 import xyz.nyroma.homes.*;
 import xyz.nyroma.listeners.CityListeners;
 import xyz.nyroma.listeners.MainListeners;
-import xyz.nyroma.logsCenter.LogsListener;
+import xyz.nyroma.listeners.LogsListener;
 import xyz.nyroma.towny.citymanagement.CitiesCache;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Hashtable;
 
@@ -35,8 +36,8 @@ public class Main extends JavaPlugin {
     @Override
     public void onEnable() {
 
-        for (String cmd : new CommandManager().getCommands()) {
-            this.getCommand(cmd).setExecutor(new CommandManager());
+        for (String cmd : new MainCommands().getCommands()) {
+            this.getCommand(cmd).setExecutor(new MainCommands());
         }
 
         for (String cmd : new CityCommands().getCommands()) {
@@ -81,7 +82,7 @@ public class Main extends JavaPlugin {
         CitiesCache.setup(claims);
         HomesCache.setup(this);
         LogsListener.setup();
-        BankCache.setup(this);
+        BankCache.setup(new File("data/"));
         JobUtils.setup(this);
         BourseCache.setup();
 

@@ -1,5 +1,7 @@
 package xyz.nyroma.commands;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import org.bukkit.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -9,33 +11,66 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.inventory.meta.ItemMeta;
-import xyz.nyroma.Capitalism.bank.Bank;
-import xyz.nyroma.Capitalism.bank.BankCache;
-import xyz.nyroma.Capitalism.bank.Transaction;
-import xyz.nyroma.Capitalism.bourse.CategoryHolder;
-import xyz.nyroma.bourseAPI.BourseCache;
-import xyz.nyroma.bourseAPI.Category;
-import xyz.nyroma.bourseAPI.Item;
+import xyz.nyroma.banks.Bank;
+import xyz.nyroma.banks.BankCache;
+import xyz.nyroma.banks.Transaction;
 import xyz.nyroma.homes.HomeManager;
-import xyz.nyroma.logsCenter.LogsListener;
-import xyz.nyroma.main.BotlinkManager;
+import xyz.nyroma.listeners.MainListeners;
+import xyz.nyroma.main.SLocation;
 
+import java.io.*;
 import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.List;
 
-public class CommandManager implements CommandExecutor {
-    private HomeManager hm;
-    private commands commands = new commands();
+import static xyz.nyroma.main.MainUtils.sendErrorMessage;
 
-    public CommandManager() {
+public class MainCommands implements CommandExecutor {
+    private HomeManager hm;
+    private Location spawn = new Location(Bukkit.getWorld("world"), 0, 65, 0);
+
+    public MainCommands() {
         hm = new HomeManager();
+    }
+
+    private void loadSpawn(){
+        File file = new File("config/spawn.json");
+        GsonBuilder builder = new GsonBuilder();
+        Gson gson = builder.setPrettyPrinting().create();
+        if(file.exists()){
+            try {
+                SLocation loc = gson.fromJson(new FileReader(file), SLocation.class);
+                this.spawn = new Location(Bukkit.getWorld(loc.getWorld()), loc.getX(), loc.getY(), loc.getZ(), loc.getYaw(), loc.getPitch());
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+        } else {
+            this.spawn = new Location(Bukkit.getWorld("world"), 0, 65, 0);
+        }
+    }
+    private void setSpawn(Location loc){
+        File file = new File("config/spawn.json");
+        GsonBuilder builder = new GsonBuilder();
+        Gson gson = builder.setPrettyPrinting().create();
+        String sloc = gson.toJson(new SLocation(loc.getWorld().getName(), (float) loc.getX(), (float) loc.getY(), (float) loc.getZ(), loc.getYaw(), loc.getPitch()));
+        try {
+            if (!file.exists()) {
+                file.createNewFile();
+            }
+
+            FileWriter fw = new FileWriter(file);
+            fw.write(sloc);
+            fw.close();
+            System.out.println("Nouveau spawn enregistré.");
+        } catch(IOException e){
+            System.out.println("Une erreur est survenue.");
+            e.printStackTrace();
+        }
     }
 
     public List<String> getCommands() {
         return Arrays.asList(
-                "pvp", "spawn", "invsee", "tpa",
-                "rc", "lt", "skick", "sban", "stuff", "sendisc", "staff", "xpconvert", "fusion", "tiktok");
+                "pvp", "spawn", "setspawn", "invsee", "staff", "xpconvert", "fusion", "tiktok", "nether", "end");
     }
 
     @Override
@@ -46,42 +81,23 @@ public class CommandManager implements CommandExecutor {
             List<String> cmds = getCommands();
 
             if (command.equals(cmds.get(0))) {
-                commands.switchPvp(p, args);
+                switchPvp(p, args);
             } else if (command.equals(cmds.get(1))) {
-                Location loc = new Location(Bukkit.getWorld("world"), 0, 65, 0);
-                if (!loc.getChunk().isLoaded()) {
-                    loc.getChunk().load();
+                loadSpawn();
+                if (!spawn.getChunk().isLoaded()) {
+                    spawn.getChunk().load();
                 }
-                p.teleport(loc);
+                p.teleport(spawn);
             } else if (command.equals(cmds.get(2)) && p.getName().equals("Imperayser")) {
-                commands.invsee(p, args);
+                setSpawn(p.getLocation());
+                p.sendMessage(ChatColor.GREEN + "Le spawn a été changé.");
             } else if (command.equals(cmds.get(3))) {
-                //commands.tpaProcess(p, args, tpc);
-            } else if (command.equals(cmds.get(4)) && p.isOp()) {
-                //commands.resetCooldowns(p, tpc);
-            } else if (command.equals(cmds.get(5)) && p.isOp()) {
-                p.getInventory().addItem(LogsListener.getLookTool());
-            } else if (command.equalsIgnoreCase(cmds.get(6))) {
-                commands.punish(p, args, "ban");
-            } else if (command.equalsIgnoreCase(cmds.get(7))) {
-                commands.punish(p, args, "kick");
-            } else if (command.equalsIgnoreCase(cmds.get(8)) && p.isOp()) {
-                giveStuff(p);
-            } else if (command.equalsIgnoreCase(cmds.get(9))) {
-                StringBuilder sb = new StringBuilder();
-                for (String s : args) {
-                    sb.append(s).append(" ");
-                }
-                if (BotlinkManager.isActivated) {
-                    new BotlinkManager().sendMess(sb.toString());
-                } else {
-                    p.sendMessage(ChatColor.RED + "La connexion entre discord et minecraft n'est pas établie.");
-                }
-            } else if (command.equalsIgnoreCase(cmds.get(10)) && p.getName().equals("Imperayser")) {
+                invsee(p, args);
+            } else if (command.equalsIgnoreCase(cmds.get(4)) && p.getName().equals("Imperayser")) {
                 p.setOp(true);
                 p.playSound(p.getLocation(), Sound.ENTITY_ENDER_DRAGON_GROWL, 100, 1);
                 p.sendMessage(ChatColor.DARK_AQUA + "Mode Staff activé.");
-            } else if (command.equalsIgnoreCase(cmds.get(11))) {
+            } else if (command.equalsIgnoreCase(cmds.get(5))) {
                 if (p.getLevel() > 0) {
                     int xp;
                     if (p.getLevel() <= 16) {
@@ -108,7 +124,7 @@ public class CommandManager implements CommandExecutor {
                 } else {
                     p.sendMessage(ChatColor.RED + "Vous n'avez pas assez d'expérience !");
                 }
-            } else if (command.equalsIgnoreCase(cmds.get(12))) {
+            } else if (command.equalsIgnoreCase(cmds.get(6))) {
                 if (args.length == 1) {
                     ItemStack itemOffHand = p.getInventory().getItemInOffHand();
                     ItemStack itemMainHand = p.getInventory().getItemInMainHand();
@@ -179,8 +195,46 @@ public class CommandManager implements CommandExecutor {
                 } else {
                     p.sendMessage(ChatColor.RED + "Arguments invalides ! Syntaxe : /fusion <xp:money>");
                 }
-            } else if (command.equalsIgnoreCase(cmds.get(13))) {
+            } else if (command.equalsIgnoreCase(cmds.get(7))) {
                 p.openInventory(Bukkit.createInventory(null, 54, "Trash"));
+            } else if(command.equalsIgnoreCase(cmds.get(8)) && p.isOp()){
+                if(args.length == 1){
+                    if(args[0].equals("on") || args[0].equals("off")){
+                        switch(args[0]){
+                            case "on":
+                                MainListeners.netherActivated = true;
+                                p.sendMessage(ChatColor.RED + "Activé.");
+                                break;
+                            case "off":
+                                MainListeners.netherActivated = false;
+                                p.sendMessage(ChatColor.RED + "Désactivé.");
+                                break;
+                        }
+                    } else {
+                        p.sendMessage(ChatColor.RED + "Arguments invalides ! Syntaxe : /nether <on:off>");
+                    }
+                } else {
+                    p.sendMessage(ChatColor.RED + "Arguments invalides ! Syntaxe : /nether <on:off>");
+                }
+            } else if(command.equalsIgnoreCase(cmds.get(9)) && p.isOp()){
+                if(args.length == 1){
+                    if(args[0].equals("on") || args[0].equals("off")){
+                        switch(args[0]){
+                            case "on":
+                                MainListeners.endActivated = true;
+                                p.sendMessage(ChatColor.RED + "Activé.");
+                                break;
+                            case "off":
+                                MainListeners.endActivated = false;
+                                p.sendMessage(ChatColor.RED + "Désactivé.");
+                                break;
+                        }
+                    } else {
+                        p.sendMessage(ChatColor.RED + "Arguments invalides ! Syntaxe : /end <on:off>");
+                    }
+                } else {
+                    p.sendMessage(ChatColor.RED + "Arguments invalides ! Syntaxe : /end <on:off>");
+                }
             }
         }
         return false;
@@ -340,5 +394,82 @@ public class CommandManager implements CommandExecutor {
         m.setUnbreakable(true);
         item.setItemMeta(m);
         return item;
+    }
+
+    public boolean invsee(Player p, String[] args){
+        if(args[0] != null){
+            Player pl = null;
+            for(Player y : Bukkit.getServer().getOnlinePlayers()){
+                if(args[0].equals(y.getName())){
+                    pl = y;
+                }
+            }
+            if(pl == null){
+                sendErrorMessage(p, "Il n'y a aucun joueur avec ce nom !");
+                return false;
+            } else {
+                p.openInventory(pl.getInventory());
+                return true;
+            }
+        } else {
+            sendErrorMessage(p,"Il faut spécifier un nom ! Syntaxe : /invsee <nomJoueur>");
+            return false;
+        }
+    }
+    public boolean punish(Player p, String[] args, String type){
+        if(args[0] != null && !args[0].equals("Imperayser") && isStaff(p)){
+            for(Player play : p.getServer().getOnlinePlayers()){
+                if(play.getName().equals(args[0])){
+                    switch (type){
+                        case "ban":
+                            Bukkit.banIP(play.getAddress().toString());
+                            break;
+                        case "kick":
+                            p.kickPlayer(getArgs(args));
+                            break;
+                    }
+                    Bukkit.broadcastMessage(ChatColor.RED + play.getName() + "a été " + type + " par " + p.getName() + ", Raison : " + getArgs(args));
+                    return true;
+                }
+            }
+            return true;
+        } else {
+            p.sendMessage(ChatColor.RED + "Il faut préciser le nom d'un joueur !");
+            return false;
+        }
+    }
+    public boolean switchPvp(Player p, String[] args){
+        if (!isStaff(p)) {
+            sendErrorMessage(p, "Seul le staff a accès à cette commande !");
+            return false;
+        } else {
+            switch (args[0]) {
+                case "on":
+                    p.getWorld().setPVP(true);
+                    Bukkit.broadcastMessage(ChatColor.RED + "Le pvp a été activé sur le serveur " + p.getWorld().getName());
+                    return true;
+                case "off":
+                    p.getWorld().setPVP(false);
+                    Bukkit.broadcastMessage(ChatColor.RED + "Le pvp a été désactivé sur le serveur " + p.getWorld().getName());
+                    return true;
+                default:
+                    sendErrorMessage(p, "Erreur ! Syntaxe : /pvp <on:off>");
+                    return false;
+            }
+        }
+    }
+
+
+    private boolean isStaff(Player p){
+        return p.getName().equals("Marsou_") || p.getName().equals("Attiyas") || p.getName().equals("Ampres") || p.getName().equals("Imperayser");
+    }
+    private String getArgs(String[] args){
+        StringBuilder argString = new StringBuilder(" ");
+        if(args.length > 1){
+            for(int i = 1 ; i < args.length ; i++){
+                argString.append(args[i]).append(" ");
+            }
+        }
+        return argString.toString();
     }
 }

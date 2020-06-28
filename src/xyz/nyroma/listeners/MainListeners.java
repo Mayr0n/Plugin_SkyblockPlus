@@ -21,9 +21,9 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import xyz.nyroma.Capitalism.ScoreboardManager;
-import xyz.nyroma.craftsCenter.BetterCrafts;
-import xyz.nyroma.craftsCenter.CraftsManager;
+import xyz.nyroma.main.ScoreboardManager;
+import xyz.nyroma.crafts.BetterCrafts;
+import xyz.nyroma.crafts.CraftsManager;
 import xyz.nyroma.main.BotlinkManager;
 import xyz.nyroma.main.MainUtils;
 import xyz.nyroma.towny.citymanagement.City;
@@ -43,6 +43,18 @@ public class MainListeners implements Listener {
     private int kelp = 0;
     private int playerSleep = 0;
     private CityManager cm = new CityManager();
+    private List<Biome> netherBiomes = Arrays.asList(Biome.NETHER_WASTES, Biome.BASALT_DELTAS, Biome.SOUL_SAND_VALLEY, Biome.CRIMSON_FOREST);
+    public static boolean netherActivated = true;
+    public static boolean endActivated = true;
+
+    @EventHandler
+    public void onPortal(PlayerPortalEvent e){
+        if(e.getCause() == PlayerTeleportEvent.TeleportCause.NETHER_PORTAL && !netherActivated){
+            e.setCancelled(true);
+        } else if(e.getCause() == PlayerTeleportEvent.TeleportCause.END_PORTAL && !endActivated){
+            e.setCancelled(true);
+        }
+    }
 
     public MainListeners() {
 
@@ -134,7 +146,7 @@ public class MainListeners implements Listener {
         } else if (b.getType().equals(Material.GLASS)) {
             Location loc1 = new Location(loc.getWorld(), loc.getX(), loc.getY(), loc.getZ());
             Location loc2 = loc.add(0, -1, 0);
-            if (loc2.getBlock().getType().equals(Material.MAGMA_BLOCK) && loc1.getBlock().getBiome().equals(Biome.NETHER)) {
+            if (loc2.getBlock().getType().equals(Material.MAGMA_BLOCK) && netherBiomes.contains(loc1.getBlock().getBiome())) {
                 for (int i = 0; i < new Random().nextInt(5) + 1; i++) {
                     loc1.getWorld().dropItemNaturally(loc1, new ItemStack(Material.QUARTZ));
                 }
@@ -146,7 +158,7 @@ public class MainListeners implements Listener {
                 if (item.hasItemMeta()) {
                     ItemMeta im = item.getItemMeta();
                     if (im.hasEnchants()) {
-                        if (im.hasEnchant(Enchantment.SILK_TOUCH) && !b.getLocation().getBlock().getBiome().equals(Biome.NETHER)) {
+                        if (im.hasEnchant(Enchantment.SILK_TOUCH) && !netherBiomes.contains(b.getLocation().getBlock().getBiome())) {
                             b.getLocation().getWorld().dropItem(b.getLocation(), new ItemStack(Material.SPAWNER));
                         }
                     }
@@ -276,17 +288,17 @@ public class MainListeners implements Listener {
         Entity ent = e.getEntity();
         EntityType type = ent.getType();
         Location loc = ent.getLocation();
-        if ((type.equals(EntityType.SKELETON) || type.equals(EntityType.GHAST)) && loc.getBlock().getBiome().equals(Biome.NETHER)) {
+        if ((type.equals(EntityType.SKELETON) || type.equals(EntityType.GHAST)) && netherBiomes.contains(loc.getBlock().getBiome())) {
             if (new Random().nextInt(10) == 1) {
                 ent.remove();
                 loc.getWorld().spawnEntity(loc, EntityType.WITHER_SKELETON);
             }
-        } else if (type.equals(EntityType.MAGMA_CUBE) && loc.getBlock().getBiome().equals(Biome.NETHER)) {
+        } else if (type.equals(EntityType.MAGMA_CUBE) && netherBiomes.contains(loc.getBlock().getBiome())) {
             if (new Random().nextInt(5) == 1) {
                 ent.remove();
                 loc.getWorld().spawnEntity(loc, EntityType.BLAZE);
             }
-        } else if (type.equals(EntityType.PIG_ZOMBIE) && loc.getBlock().getBiome().equals(Biome.NETHER)) {
+        } else if (type.equals(EntityType.PIGLIN) && netherBiomes.contains(loc.getBlock().getBiome())) {
             int i = new Random().nextInt(20);
             if (i == 7) {
                 ent.remove();
@@ -424,7 +436,7 @@ public class MainListeners implements Listener {
                     flint = 0;
                     p.getWorld().dropItem(p.getLocation(), new ItemStack(Material.FLINT));
                 }
-            } else if (b.getType().equals(Material.MAGMA_BLOCK) && item.getType().equals(Material.BUCKET) && !b.getBiome().equals(Biome.NETHER)) {
+            } else if (b.getType().equals(Material.MAGMA_BLOCK) && item.getType().equals(Material.BUCKET) && !netherBiomes.contains(b.getBiome())) {
                 p.getInventory().getItemInMainHand().setAmount(p.getInventory().getItemInMainHand().getAmount() - 1);
                 ItemStack is = p.getInventory().getItemInMainHand();
                 ItemStack i = new ItemStack(is.getType(), is.getAmount() - 1);
@@ -632,16 +644,10 @@ public class MainListeners implements Listener {
 
         List<EntityType> banned = Arrays.asList(EntityType.WITHER_SKELETON, EntityType.WITHER, EntityType.ENDER_DRAGON, EntityType.GHAST, EntityType.ENDERMAN);
 
-        if(ent instanceof Creature){
+        if(ent instanceof Monster){
             if(!banned.contains(type)){
-                if(type == EntityType.PIG_ZOMBIE){
-                    if (new Random().nextInt(100) == 27) {
-                        loc.getWorld().dropItem(loc, new ItemStack(Material.ZOMBIE_PIGMAN_SPAWN_EGG));
-                    }
-                } else {
-                    if (new Random().nextInt(100) == 27) {
-                        loc.getWorld().dropItem(loc, new ItemStack(Material.valueOf(type.toString() + "_SPAWN_EGG")));
-                    }
+                if (new Random().nextInt(100) == 27) {
+                    loc.getWorld().dropItem(loc, new ItemStack(Material.valueOf(type.toString() + "_SPAWN_EGG")));
                 }
             }
         }
