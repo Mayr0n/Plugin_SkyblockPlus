@@ -1,4 +1,4 @@
-package xyz.nyroma.logsCenter;
+package xyz.nyroma.listeners;
 
 import com.google.common.collect.HashMultimap;
 import org.bukkit.enchantments.Enchantment;

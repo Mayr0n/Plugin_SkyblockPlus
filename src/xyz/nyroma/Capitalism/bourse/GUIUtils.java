@@ -6,8 +6,8 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import xyz.nyroma.Capitalism.bank.Bank;
-import xyz.nyroma.Capitalism.bank.BankCache;
+import xyz.nyroma.banks.Bank;
+import xyz.nyroma.banks.BankCache;
 import xyz.nyroma.bourseAPI.Category;
 import xyz.nyroma.bourseAPI.Item;
 

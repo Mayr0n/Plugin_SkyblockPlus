@@ -1,4 +1,4 @@
-package xyz.nyroma.Capitalism.bank;
+package xyz.nyroma.listeners;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -11,6 +11,9 @@ import org.bukkit.event.player.PlayerAdvancementDoneEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import xyz.nyroma.banks.Bank;
+import xyz.nyroma.banks.BankCache;
+import xyz.nyroma.banks.Transaction;
 
 public class BankListeners implements Listener {
 

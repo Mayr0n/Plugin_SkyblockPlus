@@ -1,14 +1,11 @@
 package xyz.nyroma.betterItems;
 
 import org.bukkit.Material;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.potion.PotionEffect;
-import xyz.nyroma.craftsCenter.BetterCrafts;
+import xyz.nyroma.crafts.BetterCrafts;
 
 import java.util.Arrays;
-import java.util.Hashtable;
 import java.util.List;
 
 public class BetterArmorRecipes {

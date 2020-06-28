@@ -1,4 +1,4 @@
-package xyz.nyroma.craftsCenter;
+package xyz.nyroma.crafts;
 
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;

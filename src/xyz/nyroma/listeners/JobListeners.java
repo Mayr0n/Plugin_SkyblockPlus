@@ -1,4 +1,4 @@
-package xyz.nyroma.Capitalism.jobs;
+package xyz.nyroma.listeners;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -20,9 +20,11 @@ import org.bukkit.event.player.PlayerFishEvent;
 import org.bukkit.event.player.PlayerItemDamageEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import xyz.nyroma.Capitalism.bank.Bank;
-import xyz.nyroma.Capitalism.bank.BankCache;
-import xyz.nyroma.Capitalism.bank.Transaction;
+import xyz.nyroma.Capitalism.jobs.Job;
+import xyz.nyroma.Capitalism.jobs.JobUtils;
+import xyz.nyroma.banks.Bank;
+import xyz.nyroma.banks.BankCache;
+import xyz.nyroma.banks.Transaction;
 
 import java.util.List;
 

@@ -1,10 +1,10 @@
-package xyz.nyroma.Capitalism;
+package xyz.nyroma.main;
 
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.*;
-import xyz.nyroma.Capitalism.bank.Bank;
-import xyz.nyroma.Capitalism.bank.BankCache;
+import xyz.nyroma.banks.Bank;
+import xyz.nyroma.banks.BankCache;
 import xyz.nyroma.towny.citymanagement.CitiesCache;
 import xyz.nyroma.towny.citymanagement.City;
 

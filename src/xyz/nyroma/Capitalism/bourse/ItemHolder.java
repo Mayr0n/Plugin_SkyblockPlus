@@ -10,7 +10,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import xyz.nyroma.bourseAPI.Category;
 import xyz.nyroma.bourseAPI.Item;
-import xyz.nyroma.listeners.BourseListener;
 
 import java.util.Arrays;
 
